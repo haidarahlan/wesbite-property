@@ -60,7 +60,7 @@
 
         <!-- Title -->
         <h3 class="text-base font-bold text-gray-900 group-hover:text-[#C5A038] transition-colors line-clamp-1 mb-2">
-            <a href="{{ url('/properti/' . Str::slug($title)) }}">
+            <a href="{{ url('/properti/' . Str::slug($title) . '-' . strtolower($code)) }}">
                 {{ $title }}
             </a>
         </h3>
@@ -97,7 +97,7 @@
 
         <!-- Action Buttons -->
         <div class="mt-auto grid grid-cols-2 gap-2 pt-2">
-            <a href="{{ url('/properti/' . Str::slug($title)) }}" 
+            <a href="{{ url('/properti/' . Str::slug($title) . '-' . strtolower($code)) }}" 
                class="inline-flex items-center justify-center px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors">
                 Detail Unit
             </a>

@@ -36,7 +36,10 @@
                         <a href="https://facebook.com" target="_blank" class="w-7 h-7 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-black transition-colors" title="Facebook">
                             <i class="fa-brands fa-facebook-f text-xs"></i>
                         </a>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="w-7 h-7 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-black transition-colors" title="WhatsApp">
+                        @php
+                            $waFooter = \App\Models\SiteSetting::get('whatsapp_business', '6281234567890');
+                        @endphp
+                        <a href="https://wa.me/{{ $waFooter }}" target="_blank" class="w-7 h-7 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-black transition-colors" title="WhatsApp">
                             <i class="fa-brands fa-whatsapp text-xs"></i>
                         </a>
                     </div>
@@ -48,10 +51,9 @@
                 <h4 class="text-xs font-bold tracking-widest uppercase text-gray-900">PERUSAHAAN KAMI</h4>
                 <ul class="space-y-2 text-xs text-gray-800">
                     <li><a href="{{ url('/#tentang-kami') }}" class="hover:text-black hover:font-semibold transition-all">Tentang Kami</a></li>
-                    <li><a href="{{ url('/#tentang-kami') }}" class="hover:text-black hover:font-semibold transition-all">Struktur Perusahaan</a></li>
-                    <li><a href="{{ url('/#properti') }}" class="hover:text-black hover:font-semibold transition-all">Daftar Halaman</a></li>
-                    <li><a href="#" class="hover:text-black hover:font-semibold transition-all">Kebijakan Privasi</a></li>
-                    <li><a href="#" class="hover:text-black hover:font-semibold transition-all">Persyaratan Layanan</a></li>
+                    <li><a href="{{ url('/#visi-misi') }}" class="hover:text-black hover:font-semibold transition-all">Visi & Misi</a></li>
+                    <li><a href="{{ route('public.properties') }}" class="hover:text-black hover:font-semibold transition-all">Daftar Properti</a></li>
+                    <li><a href="{{ url('/sitemap.xml') }}" target="_blank" class="hover:text-black hover:font-semibold transition-all">Sitemap XML</a></li>
                 </ul>
             </div>
 

@@ -75,7 +75,7 @@
                     </div>
                 </div>
 
-                <a href="{{ url('/#properti') }}" class="hover:text-[#C5A038] transition-colors">
+                <a href="{{ route('public.properties') }}" class="hover:text-[#C5A038] transition-colors {{ request()->routeIs('public.properties*') ? 'text-[#C5A038] font-semibold' : '' }}">
                     Daftar Properti
                 </a>
 
@@ -90,7 +90,10 @@
 
             <!-- CTA Button & Mobile Trigger -->
             <div class="flex items-center gap-3">
-                <a href="https://wa.me/6281234567890?text=Halo%20Wastu%20Property,%20saya%20ingin%20berkonsultasi" 
+                @php
+                    $waBiz = \App\Models\SiteSetting::get('whatsapp_business', '6281234567890');
+                @endphp
+                <a href="https://wa.me/{{ $waBiz }}?text=Halo%20Wastu%20Property,%20saya%20ingin%20berkonsultasi" 
                    target="_blank"
                    class="hidden sm:inline-flex items-center justify-center px-6 py-2 rounded-full text-xs sm:text-sm font-semibold text-white shadow-md shadow-amber-600/20 bg-[#C5A038] hover:bg-[#B08C2B] active:scale-95 transition-all">
                     Hubungi Kami
