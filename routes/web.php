@@ -28,6 +28,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Manajemen User (Khusus Superadmin)
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
     // CMS Company Profile (Fase 2B)
     Route::get('/cms', [\App\Http\Controllers\Admin\CmsController::class, 'index'])->name('cms.index');
     Route::post('/cms/settings', [\App\Http\Controllers\Admin\CmsController::class, 'updateSettings'])->name('cms.settings.update');
@@ -38,8 +40,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/cms/testimonials/{testimonial}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteTestimonial'])->name('cms.testimonials.destroy');
     Route::post('/cms/faqs', [\App\Http\Controllers\Admin\CmsController::class, 'storeFaq'])->name('cms.faqs.store');
     Route::delete('/cms/faqs/{faq}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteFaq'])->name('cms.faqs.destroy');
-    Route::post('/cms/teams', [\App\Http\Controllers\Admin\CmsController::class, 'storeTeam'])->name('cms.teams.store');
-    Route::delete('/cms/teams/{teamMember}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteTeam'])->name('cms.teams.destroy');
+    // WhatsApp Simulator (Fase 3A)
+    Route::get('/whatsapp/simulator', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'index'])->name('whatsapp.simulator');
+    Route::post('/whatsapp/simulator/inbound', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'simulateInbound'])->name('whatsapp.simulate-inbound');
+    Route::post('/whatsapp/simulator/send', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'testSend'])->name('whatsapp.test-send');
 });
+
+// Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)
+Route::post('/webhook/whatsapp', [\App\Http\Controllers\Api\WhatsAppWebhookController::class, 'handle'])->name('webhook.whatsapp');
 
 Route::redirect('/dashboard', '/admin/units')->name('dashboard');

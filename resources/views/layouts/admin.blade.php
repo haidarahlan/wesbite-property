@@ -142,6 +142,12 @@
                 <span>CMS Company Profile</span>
             </a>
 
+            <a href="{{ route('admin.whatsapp.simulator') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.whatsapp.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
+                <span>Simulator WhatsApp</span>
+            </a>
+
             @if(auth()->check() && auth()->user()->isSuperAdmin())
                 <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-amber-500/80 px-3 mb-1">SUPERADMIN ONLY</div>
                 <a href="{{ route('admin.users.index') }}" 

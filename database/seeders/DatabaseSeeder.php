@@ -218,5 +218,39 @@ class DatabaseSeeder extends Seeder
                 'notes' => 'Unit pertama kali didaftarkan oleh Superadmin.',
             ]);
         }
+
+        // 4. Seeder Aturan Filter Keyword (Sub-Fase 3B)
+        $filterRules = [
+            ['keyword' => 'tertarik', 'classification' => 'Tertarik', 'weight' => 2],
+            ['keyword' => 'harga', 'classification' => 'Tertarik', 'weight' => 1],
+            ['keyword' => 'ketersediaan', 'classification' => 'Tertarik', 'weight' => 1],
+            ['keyword' => 'survei', 'classification' => 'Tertarik', 'weight' => 2],
+            ['keyword' => 'lokasi', 'classification' => 'Tertarik', 'weight' => 1],
+            ['keyword' => 'brosur', 'classification' => 'Tertarik', 'weight' => 1],
+            ['keyword' => 'kpr', 'classification' => 'Tertarik', 'weight' => 1],
+            ['keyword' => 'beli', 'classification' => 'Tertarik', 'weight' => 2],
+            ['keyword' => 'mahal', 'classification' => 'Tidak Tertarik', 'weight' => 2],
+            ['keyword' => 'batal', 'classification' => 'Tidak Tertarik', 'weight' => 3],
+            ['keyword' => 'tidak jadi', 'classification' => 'Tidak Tertarik', 'weight' => 3],
+            ['keyword' => 'belum berminat', 'classification' => 'Tidak Tertarik', 'weight' => 3],
+            ['keyword' => 'salah sambung', 'classification' => 'Tidak Tertarik', 'weight' => 3],
+        ];
+
+        foreach ($filterRules as $rule) {
+            \App\Models\MessageFilterRule::firstOrCreate(
+                ['keyword' => $rule['keyword']],
+                $rule
+            );
+        }
+
+        // 5. Template Auto-Reply FAQ Default (Sub-Fase 3B)
+        \App\Models\FaqTemplate::firstOrCreate(
+            ['code' => 'FAQ-DEFAULT'],
+            [
+                'title' => 'Jawaban FAQ Otomatis Umum',
+                'template_message' => "Halo! Terima kasih telah menghubungi PT Wastu Pratama Wijaya.\n\nJika saat ini Anda belum menemukan unit yang sesuai atau memiliki pertanyaan seputar:\n1. Konsultasi & Simulasi KPR Bank\n2. Cek Legalitas Sertifikat (SHM/Girik)\n3. Titip Jual Properti Anda\n\nTim Marketing kami siap membantu kapan saja. Silakan kunjungi website kami di wastuproperty.co.id untuk melihat katalog properti lainnya.",
+                'is_default' => true,
+            ]
+        );
     }
 }

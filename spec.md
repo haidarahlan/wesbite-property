@@ -203,3 +203,34 @@ Fase 4: modul Developer, link token konfirmasi, notifikasi & pengingat.
 Fase 5: modul Superadmin (target, kandidat, evaluasi), dashboard analitik, laporan.
 Fase 6: halaman Panduan WhatsApp, testing, README, polishing.
 Jika ada hal ambigu, buat asumsi yang masuk akal, tulis asumsinya, lalu lanjut.
+
+PERUBAHAN SPESIFIKASI (menggantikan bagian terkait di docs/SPEC.md)
+
+BPMN To-Be diperbarui. Perubahan yang berlaku mulai Fase 3:
+
+1. STRATEGI WHATSAPP: sekarang memakai WA GATEWAY (otomatis), bukan manual.
+    - Hapus: pengingat "publikasi ulang listing", tautan arsip Google Drive,
+      generator teks publikasi grup WA, modul pembayaran.
+    - Tambah: webhook penerima pesan WA, klasifikasi pesan otomatis, auto-reply FAQ,
+      penyimpanan chat di database, notifikasi lead baru ke Admin (marketing).
+    - Tetap pakai interface WhatsAppGateway. Implementasi awal: WahaGateway
+      (self-hosted) atau FonnteGateway, dipilih lewat site_settings/.env.
+      Sediakan juga FakeGateway untuk testing dan demo tanpa nomor WA asli.
+    - Tombol wa.me di website tetap ada sebagai pintu masuk konsumen.
+
+2. ALUR SISTEM (lane "Sistem Portal Web"):
+   Terima pesan WA -> Filter & klasifikasi pesan -> gateway keputusan
+   "Konsumen tertarik?":
+    - Tidak tertarik -> kirim auto-reply FAQ umum
+    - Tertarik -> simpan lead valid ke CRM -> kirim notifikasi lead baru ke marketing
+      Semua data masuk database terpusat -> generate laporan otomatis (terjadwal)
+      -> kirim laporan ke Managing Director (Superadmin).
+
+3. ALUR TIM:
+    - Marketing (Admin): input listing ke CRM, lihat status unit real-time,
+      terima notifikasi leads baru, follow-up konsumen dan survei lapangan.
+    - Admin: hubungi developer cek ketersediaan, terima konfirmasi, update status
+      unit (Tersedia/Booking/Terjual), konfirmasi status ke marketing.
+    - Developer (tanpa akun, link token): terima permintaan dan beri konfirmasi.
+    - Managing Director (Superadmin): tetapkan strategi & target, setujui kandidat
+      unit, terima laporan otomatis, evaluasi kinerja & efisiensi tim.

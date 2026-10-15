@@ -8,12 +8,12 @@
     <!-- ================= TOP CONTROLS & KPI ROW (SESUAI GAMBAR REFERENSI) ================= -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
-        <!-- 1. Dropdown Filters (Province, District, Subdistrict) -->
+        <!-- 1. Dropdown Filters (Provinsi, Kota/Kabupaten, Kecamatan) -->
         <div class="lg:col-span-3 space-y-3">
             <form id="filterForm" action="{{ route('admin.units.index') }}" method="GET" class="space-y-3">
-                <!-- Province -->
+                <!-- Provinsi -->
                 <div class="bg-[#1F2731] border border-[#2B3543] rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-sm">
-                    <span class="text-xs font-semibold text-gray-300">Province</span>
+                    <span class="text-xs font-semibold text-gray-300">Provinsi</span>
                     <select name="province" onchange="this.form.submit()" class="bg-transparent text-xs text-gray-400 focus:outline-none border-none text-right cursor-pointer">
                         <option value="all" class="bg-[#1F2731] text-gray-200">Semua</option>
                         @foreach($provinces as $prov)
@@ -22,9 +22,9 @@
                     </select>
                 </div>
 
-                <!-- District (Kota) -->
+                <!-- Kota/Kabupaten -->
                 <div class="bg-[#1F2731] border border-[#2B3543] rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-sm">
-                    <span class="text-xs font-semibold text-gray-300">District</span>
+                    <span class="text-xs font-semibold text-gray-300">Kota / Kab</span>
                     <select name="district" onchange="this.form.submit()" class="bg-transparent text-xs text-gray-400 focus:outline-none border-none text-right cursor-pointer">
                         <option value="all" class="bg-[#1F2731] text-gray-200">Semua</option>
                         @foreach($cities as $c)
@@ -33,9 +33,9 @@
                     </select>
                 </div>
 
-                <!-- Subdistrict (Kecamatan) -->
+                <!-- Kecamatan -->
                 <div class="bg-[#1F2731] border border-[#2B3543] rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-sm">
-                    <span class="text-xs font-semibold text-gray-300">Subdistrict</span>
+                    <span class="text-xs font-semibold text-gray-300">Kecamatan</span>
                     <select name="subdistrict" onchange="this.form.submit()" class="bg-transparent text-xs text-gray-400 focus:outline-none border-none text-right cursor-pointer">
                         <option value="all" class="bg-[#1F2731] text-gray-200">Semua</option>
                         @foreach($districts as $d)
@@ -46,7 +46,7 @@
             </form>
         </div>
 
-        <!-- 2. Mini Table Units Ringkas (Sesuai Screenshot: No, Unit, Data, Status) -->
+        <!-- 2. Mini Table Units Ringkas -->
         <div class="lg:col-span-5 bg-[#1F2731] border border-[#2B3543] rounded-2xl p-4 shadow-sm flex flex-col justify-between overflow-hidden">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#2B3543]">
                 <span class="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
@@ -69,11 +69,11 @@
                         </a>
                         <div>
                             @if($u->status == 'Tersedia')
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">Available</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">Tersedia</span>
                             @elseif($u->status == 'Booking')
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-400 border border-amber-500/30">Booking</span>
                             @else
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/80 text-red-400 border border-red-500/30">Sold</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950/80 text-red-400 border border-red-500/30">Terjual</span>
                             @endif
                         </div>
                     </div>
@@ -156,9 +156,9 @@
             <!-- Map Container -->
             <div id="unitMap" class="w-full h-80 rounded-xl overflow-hidden border border-[#2B3543] z-10"></div>
 
-            <!-- Subdistrict Legend (Sesuai Screenshot) -->
+            <!-- Subdistrict Legend (Bahasa Indonesia) -->
             <div class="pt-4 flex items-center gap-4 text-[11px] flex-wrap">
-                <span class="text-gray-400 font-semibold">subdistrict:</span>
+                <span class="text-gray-400 font-semibold">Kecamatan:</span>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span class="text-gray-300">Borobudur</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span><span class="text-gray-300">Ngagilik</span></div>
                 <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-gray-300">Depok</span></div>

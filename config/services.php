@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    // WhatsApp Gateway Services (Fase 3A)
+    'whatsapp' => [
+        'default_provider' => env('WA_GATEWAY_PROVIDER', 'fake'), // fake, fonnte, waha
+        'webhook_secret' => env('WA_WEBHOOK_SECRET', 'wastu-secret-token-2026'),
+        'fonnte' => [
+            'url' => env('FONNTE_URL', 'https://api.fonnte.com'),
+            'token' => env('FONNTE_TOKEN', ''),
+        ],
+        'waha' => [
+            'url' => env('WAHA_URL', 'http://localhost:3000'),
+            'session' => env('WAHA_SESSION', 'default'),
+        ],
+    ],
+
 ];
