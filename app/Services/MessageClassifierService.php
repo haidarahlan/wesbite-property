@@ -78,8 +78,9 @@ class MessageClassifierService
             if ($classification === 'Tertarik') {
                 // A. KONSUMEN TERTARIK: Cari atau Buat Lead Baru di CRM
                 $lead = Lead::firstOrNew(['phone' => $phone]);
+                $isNewLead = !$lead->exists;
 
-                if (!$lead->exists) {
+                if ($isNewLead) {
                     $lead->reference_code = 'L-' . str_pad((string) (Lead::count() + 1), 4, '0', '0');
                     $lead->source = 'whatsapp';
                     $lead->status = 'Tertarik';
@@ -93,6 +94,14 @@ class MessageClassifierService
 
                 // Hubungkan chat ke lead
                 $message->update(['lead_id' => $lead->id]);
+
+                // Kirim notifikasi in-app (Bell & Badge) ke semua Admin & Superadmin jika ini lead baru
+                if ($isNewLead) {
+                    $admins = \App\Models\User::where('is_active', true)->get();
+                    foreach ($admins as $adminUser) {
+                        $adminUser->notify(new \App\Notifications\NewLeadNotification($lead, Str::limit($message->message_body, 80)));
+                    }
+                }
 
             } else {
                 // B. KONSUMEN TIDAK TERTARIK / RAGU: Kirim Auto-Reply FAQ

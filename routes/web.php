@@ -40,10 +40,16 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/cms/testimonials/{testimonial}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteTestimonial'])->name('cms.testimonials.destroy');
     Route::post('/cms/faqs', [\App\Http\Controllers\Admin\CmsController::class, 'storeFaq'])->name('cms.faqs.store');
     Route::delete('/cms/faqs/{faq}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteFaq'])->name('cms.faqs.destroy');
-    // WhatsApp Simulator (Fase 3A)
+    // WhatsApp Simulator & Rules (Fase 3A & 3B)
     Route::get('/whatsapp/simulator', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'index'])->name('whatsapp.simulator');
     Route::post('/whatsapp/simulator/inbound', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'simulateInbound'])->name('whatsapp.simulate-inbound');
     Route::post('/whatsapp/simulator/send', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'testSend'])->name('whatsapp.test-send');
+    Route::get('/whatsapp/rules', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'index'])->name('whatsapp.rules.index');
+    Route::post('/whatsapp/rules', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'storeRule'])->name('whatsapp.rules.store');
+    Route::delete('/whatsapp/rules/{rule}', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'destroyRule'])->name('whatsapp.rules.destroy');
+    Route::patch('/whatsapp/rules/{rule}/toggle', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'toggleRule'])->name('whatsapp.rules.toggle');
+    Route::post('/whatsapp/templates', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'storeFaqTemplate'])->name('whatsapp.templates.store');
+    Route::delete('/whatsapp/templates/{template}', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'destroyFaqTemplate'])->name('whatsapp.templates.destroy');
 });
 
 // Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)
