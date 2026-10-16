@@ -45,4 +45,14 @@ class User extends Authenticatable
     {
         return in_array($this->role, ['superadmin', 'admin']);
     }
+
+    public function assignedLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Lead::class, 'assigned_to');
+    }
+
+    public function surveys(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Survey::class, 'pic_user_id');
+    }
 }

@@ -13,3 +13,10 @@ Schedule::command('surveys:send-reminders')
     ->dailyAt('08:00')
     ->timezone('Asia/Jakarta')
     ->withoutOverlapping();
+
+// Generator Snapshot Harian Laporan (Fase 5B) - Berjalan setiap malam jam 23:59 WIB
+Schedule::command('reports:generate-daily-snapshot')
+    ->dailyAt('23:59')
+    ->timezone('Asia/Jakarta')
+    ->withoutOverlapping();
+

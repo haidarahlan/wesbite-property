@@ -74,6 +74,18 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Mitra Developer & Cek Ketersediaan Token (Fase 4A & 4B)
     Route::resource('developers', \App\Http\Controllers\Admin\DeveloperController::class);
     Route::post('/units/{unit}/check-availability', [\App\Http\Controllers\Admin\AvailabilityRequestController::class, 'store'])->name('units.check-availability');
+
+    // Strategi & Target Akuisisi (Fase 5A)
+    Route::get('/acquisitions', [\App\Http\Controllers\Admin\AcquisitionController::class, 'index'])->name('acquisitions.index');
+    Route::post('/acquisitions/targets', [\App\Http\Controllers\Admin\AcquisitionController::class, 'storeTarget'])->name('acquisitions.targets.store');
+    Route::post('/acquisitions/candidates', [\App\Http\Controllers\Admin\AcquisitionController::class, 'storeCandidate'])->name('acquisitions.candidates.store');
+    Route::post('/acquisitions/candidates/{candidate}/review', [\App\Http\Controllers\Admin\AcquisitionController::class, 'reviewCandidate'])->name('acquisitions.candidates.review');
+
+    // Executive Dashboard Analitik & Laporan (Fase 5B)
+    Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'dashboard'])->name('analytics.dashboard');
+    Route::get('/reports', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'reports'])->name('reports.index');
+    Route::get('/reports/print', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'printReport'])->name('reports.print');
+    Route::get('/reports/export-leads', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'exportLeadsCsv'])->name('reports.export.leads');
 });
 
 // Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)

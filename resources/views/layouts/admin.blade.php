@@ -180,6 +180,10 @@
                         {{ $tomorrowSurveyCount }}
                     </span>
                 @endif
+            <a href="{{ route('admin.acquisitions.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.acquisitions.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <i class="fa-solid fa-bullseye text-sm text-rose-400"></i>
+                <span>Target & Usulan Unit</span>
             </a>
 
             @if(auth()->check() && auth()->user()->isSuperAdmin())
@@ -204,11 +208,19 @@
                 </a>
             @endif
 
-            <div class="pt-6 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-2">FASE MENDATANG</div>
-            <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
-                <i class="fa-solid fa-chart-pie text-sm"></i>
-                <span>Laporan & Analitik (Fase 5)</span>
-            </div>
+            <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-1">ANALITIK & LAPORAN</div>
+            
+            <a href="{{ route('admin.analytics.dashboard') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.analytics.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <i class="fa-solid fa-chart-line text-sm text-cyan-400"></i>
+                <span>Executive Dashboard</span>
+            </a>
+
+            <a href="{{ route('admin.reports.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.reports.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <i class="fa-solid fa-file-invoice text-sm text-emerald-400"></i>
+                <span>Generator Laporan</span>
+            </a>
         </aside>
 
         <!-- Main Content Dark Area -->
