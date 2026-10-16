@@ -210,13 +210,19 @@
 
                             <td class="py-3 px-4 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <!-- Tombol Kirim Pengingat Manual -->
-                                    <form action="{{ route('admin.surveys.manual-reminder', $survey->id) }}" method="POST" onsubmit="return confirm('Kirim pengingat WhatsApp ke konsumen sekarang?')">
-                                        @csrf
-                                        <button type="submit" class="p-1.5 rounded-lg bg-[#232B35] hover:bg-emerald-600 hover:text-white text-emerald-400 border border-[#2B3543] transition-all" title="Kirim Pengingat WA Manual">
-                                            <i class="fa-brands fa-whatsapp text-xs"></i>
-                                        </button>
-                                    </form>
+                                    <!-- Tombol Kirim Pengingat WhatsApp Langsung (Direct wa.me) -->
+                                    @php
+                                        $tglSurvei = $survey->survey_date->translatedFormat('l, d F Y');
+                                        $jamSurvei = $survey->survey_date->format('H:i');
+                                        $picName = $survey->pic?->name ?? 'Tim Marketing Wastu Property';
+                                        $reminderWaText = "Halo Bapak/Ibu {$survey->lead->name} (Ref: {$survey->lead->reference_code}), mengingatkan kembali agenda kunjungan survei lapangan unit {$survey->unit->title} ({$survey->unit->code}) pada {$tglSurvei} pukul {$jamSurvei} WIB bersama PIC {$picName}. Mohon konfirmasi kehadirannya. Terima kasih.";
+                                    @endphp
+                                    <a href="https://wa.me/{{ $survey->lead->phone }}?text={{ urlencode($reminderWaText) }}" 
+                                       target="_blank"
+                                       class="p-1.5 rounded-lg bg-[#232B35] hover:bg-emerald-600 hover:text-white text-emerald-400 border border-[#2B3543] transition-all inline-block" 
+                                       title="Chat / Ingatkan via WhatsApp">
+                                        <i class="fa-brands fa-whatsapp text-xs"></i>
+                                    </a>
 
                                     <!-- Tombol Isi Hasil Survei & Update Status -->
                                     <button @click="selectedSurvey = {{ $survey->toJson() }}; openResultModal = true"

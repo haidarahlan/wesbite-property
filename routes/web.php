@@ -45,30 +45,20 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/cms/testimonials/{testimonial}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteTestimonial'])->name('cms.testimonials.destroy');
     Route::post('/cms/faqs', [\App\Http\Controllers\Admin\CmsController::class, 'storeFaq'])->name('cms.faqs.store');
     Route::delete('/cms/faqs/{faq}', [\App\Http\Controllers\Admin\CmsController::class, 'deleteFaq'])->name('cms.faqs.destroy');
-    // WhatsApp Simulator & Rules (Fase 3A & 3B)
-    Route::get('/whatsapp/simulator', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'index'])->name('whatsapp.simulator');
-    Route::post('/whatsapp/simulator/inbound', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'simulateInbound'])->name('whatsapp.simulate-inbound');
-    Route::post('/whatsapp/simulator/send', [\App\Http\Controllers\Admin\WhatsAppSimulatorController::class, 'testSend'])->name('whatsapp.test-send');
-    Route::get('/whatsapp/rules', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'index'])->name('whatsapp.rules.index');
-    Route::post('/whatsapp/rules', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'storeRule'])->name('whatsapp.rules.store');
-    Route::delete('/whatsapp/rules/{rule}', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'destroyRule'])->name('whatsapp.rules.destroy');
-    Route::patch('/whatsapp/rules/{rule}/toggle', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'toggleRule'])->name('whatsapp.rules.toggle');
-    Route::post('/whatsapp/templates', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'storeFaqTemplate'])->name('whatsapp.templates.store');
-    Route::delete('/whatsapp/templates/{template}', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'destroyFaqTemplate'])->name('whatsapp.templates.destroy');
 
-    // Manajemen Leads & Chat (Fase 3C)
+    // Manajemen Leads & Bukti Chat Konsumen (Fase 3)
     Route::get('/leads', [\App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
     Route::post('/leads', [\App\Http\Controllers\Admin\LeadController::class, 'store'])->name('leads.store');
     Route::get('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'show'])->name('leads.show');
     Route::put('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'update'])->name('leads.update');
-    Route::post('/leads/{lead}/reply', [\App\Http\Controllers\Admin\LeadController::class, 'sendReply'])->name('leads.reply');
+    Route::post('/leads/{lead}/chat-proof', [\App\Http\Controllers\Admin\LeadController::class, 'uploadChatProof'])->name('leads.chat-proof.store');
+    Route::delete('/leads/chat-proof/{proof}', [\App\Http\Controllers\Admin\LeadController::class, 'deleteChatProof'])->name('leads.chat-proof.destroy');
     Route::delete('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'destroy'])->name('leads.destroy');
 
     // Survei Lapangan & Pengingat H-1 (Fase 3D)
     Route::get('/surveys', [\App\Http\Controllers\Admin\SurveyController::class, 'index'])->name('surveys.index');
     Route::post('/surveys', [\App\Http\Controllers\Admin\SurveyController::class, 'store'])->name('surveys.store');
     Route::put('/surveys/{survey}', [\App\Http\Controllers\Admin\SurveyController::class, 'update'])->name('surveys.update');
-    Route::post('/surveys/{survey}/manual-reminder', [\App\Http\Controllers\Admin\SurveyController::class, 'sendManualReminder'])->name('surveys.manual-reminder');
     Route::delete('/surveys/{survey}', [\App\Http\Controllers\Admin\SurveyController::class, 'destroy'])->name('surveys.destroy');
 
     // Mitra Developer & Cek Ketersediaan Token (Fase 4A & 4B)
@@ -87,8 +77,5 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/reports/print', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'printReport'])->name('reports.print');
     Route::get('/reports/export-leads', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'exportLeadsCsv'])->name('reports.export.leads');
 });
-
-// Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)
-Route::post('/webhook/whatsapp', [\App\Http\Controllers\Api\WhatsAppWebhookController::class, 'handle'])->name('webhook.whatsapp');
 
 Route::redirect('/dashboard', '/admin/units')->name('dashboard');

@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Contracts\WhatsAppGateway;
 use App\Models\Survey;
 use App\Models\User;
-use App\Models\WhatsAppMessage;
 use App\Notifications\SurveyReminderNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -20,12 +18,12 @@ class SendSurveyRemindersCommand extends Command
     /**
      * The console command description.
      */
-    protected $description = 'Kirim pengingat survei lapangan H-1 ke konsumen via WhatsApp dan notifikasi dashboard ke tim marketing';
+    protected $description = 'Kirim pengingat survei lapangan H-1 ke tim marketing via in-app notification';
 
     /**
      * Execute the console command.
      */
-    public function handle(WhatsAppGateway $gateway): int
+    public function handle(): int
     {
         $this->info('Memeriksa jadwal survei lapangan untuk besok (H-1)...');
 
@@ -49,50 +47,20 @@ class SendSurveyRemindersCommand extends Command
         foreach ($surveys as $survey) {
             $lead = $survey->lead;
             $unit = $survey->unit;
-            $picName = $survey->pic?->name ?? 'Tim Marketing Wastu Property';
-            $jam = $survey->survey_date->format('H:i');
-            $tgl = $survey->survey_date->translatedFormat('l, d F Y');
 
-            // Format Pesan WhatsApp Pengingat H-1
-            $messageText = "Halo Bapak/Ibu *{$lead->name}* (Ref: *{$lead->reference_code}*),\n\n"
-                . "Mengingatkan kembali rencana agenda kunjungan survei lapangan properti *{$unit->title}* ({$unit->code}) yang telah dijadwalkan pada:\n"
-                . "📅 *{$tgl}*\n"
-                . "⏰ *Pukul {$jam} WIB*\n"
-                . "👤 *PIC Pendamping:* {$picName}\n"
-                . ($survey->notes ? "📍 *Catatan / Titik Kumpul:* {$survey->notes}\n\n" : "\n")
-                . "Mohon konfirmasi jika ada perubahan jadwal atau kendala perjalanan. Sampai bertemu besok!";
-
-            // 1. Kirim via WhatsApp Gateway
-            $isSent = $gateway->send($lead->phone, $messageText);
-
-            // 2. Simpan ke riwayat pesan WhatsApp
-            WhatsAppMessage::create([
-                'lead_id' => $lead->id,
-                'message_id' => 'reminder-h1-' . $survey->id . '-' . time(),
-                'direction' => 'outbound',
-                'phone_number' => $lead->phone,
-                'message_body' => $messageText,
-                'status' => $isSent ? 'sent' : 'failed',
-                'gateway_provider' => config('whatsapp.default', 'fake'),
-                'payload' => [
-                    'type' => 'survey_reminder_h1',
-                    'survey_id' => $survey->id,
-                ],
-            ]);
-
-            // 3. Kirim notifikasi dashboard ke Admin & PIC
+            // Kirim notifikasi internal dashboard ke Admin & PIC
             $notifiables = User::where('is_active', true)->get();
             foreach ($notifiables as $user) {
                 $user->notify(new SurveyReminderNotification($survey));
             }
 
-            // 4. Update status timestamp pengingat
+            // Update status timestamp pengingat
             $survey->update([
                 'reminder_sent_at' => now(),
             ]);
 
             $sentCount++;
-            $this->line(" Pengingat H-1 berhasil dikirim ke {$lead->name} ({$lead->phone}) untuk unit {$unit->code}");
+            $this->line("Notifikasi pengingat survei H-1 dibuat untuk {$lead->name} ({$lead->phone}) pada unit {$unit->code}");
         }
 
         $this->info("Selesai. Total {$sentCount} pengingat survei berhasil diproses.");

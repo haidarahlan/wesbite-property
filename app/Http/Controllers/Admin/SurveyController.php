@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Contracts\WhatsAppGateway;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Survey;
 use App\Models\Unit;
 use App\Models\User;
-use App\Models\WhatsAppMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -96,9 +94,9 @@ class SurveyController extends Controller
     }
 
     /**
-     * Jadwalkan survei baru dan kirim notifikasi/pesan WhatsApp konfirmasi ke konsumen.
+     * Jadwalkan survei baru untuk konsumen.
      */
-    public function store(Request $request, WhatsAppGateway $gateway)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'lead_id' => ['required', 'exists:leads,id'],
@@ -130,37 +128,8 @@ class SurveyController extends Controller
             'assigned_to' => $validated['pic_user_id'] ?? $lead->assigned_to,
         ]);
 
-        // Kirim Pesan Konfirmasi Jadwal ke WhatsApp Konsumen
-        $unit = Unit::findOrFail($validated['unit_id']);
-        $pic = User::find($validated['pic_user_id']);
-        $picName = $pic ? $pic->name : 'Tim Marketing Wastu Property';
-        $waktu = Carbon::parse($validated['survey_date'])->translatedFormat('l, d F Y - H:i') . ' WIB';
-
-        $confirmText = "Halo Bapak/Ibu *{$lead->name}*,\n\n"
-            . "Jadwal kunjungan survei lapangan untuk unit *{$unit->title}* ({$unit->code}) telah berhasil kami agendakan:\n\n"
-            . "📅 *Waktu:* {$waktu}\n"
-            . "👤 *PIC Pendamping:* {$picName}\n"
-            . ($validated['notes'] ? "📍 *Catatan/Titik Kumpul:* {$validated['notes']}\n\n" : "\n")
-            . "Kami akan mengirimkan pengingat H-1 sebelum jadwal kunjungan. Terima kasih atas kepercayaan Anda pada Wastu Property.";
-
-        $sent = $gateway->send($lead->phone, $confirmText);
-
-        WhatsAppMessage::create([
-            'lead_id' => $lead->id,
-            'message_id' => 'survey-conf-' . $survey->id . '-' . time(),
-            'direction' => 'outbound',
-            'phone_number' => $lead->phone,
-            'message_body' => $confirmText,
-            'status' => $sent ? 'sent' : 'failed',
-            'gateway_provider' => config('whatsapp.default', 'fake'),
-            'payload' => [
-                'type' => 'survey_confirmation',
-                'survey_id' => $survey->id,
-            ],
-        ]);
-
         return redirect()->route('admin.surveys.index')
-            ->with('success', "Jadwal survei berhasil dibuat dan pesan konfirmasi telah dikirim ke nomor WA {$lead->phone}.");
+            ->with('success', "Jadwal survei berhasil dibuat untuk konsumen {$lead->name}.");
     }
 
     /**
@@ -188,46 +157,6 @@ class SurveyController extends Controller
         }
 
         return back()->with('success', 'Data survei dan hasil kunjungan berhasil diperbarui.');
-    }
-
-    /**
-     * Kirim pengingat survei secara manual langsung dari dashboard (on-demand).
-     */
-    public function sendManualReminder(Survey $survey, WhatsAppGateway $gateway)
-    {
-        $lead = $survey->lead;
-        $unit = $survey->unit;
-        $picName = $survey->pic?->name ?? 'Tim Marketing Wastu Property';
-        $jam = $survey->survey_date->format('H:i');
-        $tgl = $survey->survey_date->translatedFormat('l, d F Y');
-
-        $messageText = "Halo Bapak/Ibu *{$lead->name}* (Ref: *{$lead->reference_code}*),\n\n"
-            . "Mengingatkan kembali agenda survei lapangan properti *{$unit->title}* ({$unit->code}) pada:\n"
-            . "📅 *{$tgl}*\n"
-            . "⏰ *Pukul {$jam} WIB*\n"
-            . "👤 *PIC Pendamping:* {$picName}\n"
-            . ($survey->notes ? "📍 *Titik Kumpul:* {$survey->notes}\n\n" : "\n")
-            . "Mohon konfirmasi jika ada perubahan. Terima kasih.";
-
-        $sent = $gateway->send($lead->phone, $messageText);
-
-        WhatsAppMessage::create([
-            'lead_id' => $lead->id,
-            'message_id' => 'reminder-manual-' . $survey->id . '-' . time(),
-            'direction' => 'outbound',
-            'phone_number' => $lead->phone,
-            'message_body' => $messageText,
-            'status' => $sent ? 'sent' : 'failed',
-            'gateway_provider' => config('whatsapp.default', 'fake'),
-            'payload' => [
-                'type' => 'survey_reminder_manual',
-                'survey_id' => $survey->id,
-            ],
-        ]);
-
-        $survey->update(['reminder_sent_at' => now()]);
-
-        return back()->with('success', "Pengingat WA berhasil dikirim ke {$lead->name} ({$lead->phone}).");
     }
 
     /**

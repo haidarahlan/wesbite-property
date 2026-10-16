@@ -182,7 +182,7 @@
                                 <a href="{{ route('admin.leads.show', $lead->id) }}" 
                                    class="px-3 py-1.5 bg-[#232B35] hover:bg-[#C5A038] hover:text-white text-gray-200 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5">
                                     <i class="fa-solid fa-eye"></i>
-                                    <span>Detail & Chat</span>
+                                    <span>Detail & Bukti Chat</span>
                                 </a>
                             </td>
                         </tr>

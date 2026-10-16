@@ -33,13 +33,13 @@ class Lead extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    public function whatsappMessages(): HasMany
-    {
-        return $this->hasMany(WhatsAppMessage::class)->latest();
-    }
-
     public function surveys(): HasMany
     {
         return $this->hasMany(Survey::class)->latest('survey_date');
+    }
+
+    public function chatProofs(): HasMany
+    {
+        return $this->hasMany(LeadChatProof::class)->latest();
     }
 }

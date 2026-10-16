@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Contracts\WhatsAppGateway;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\Unit;
 use App\Models\User;
-use App\Models\WhatsAppMessage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -106,22 +104,16 @@ class LeadController extends Controller
     }
 
     /**
-     * Tampilkan detail lead, riwayat chat WhatsApp, dan form balas pesan.
+     * Tampilkan detail lead dan galeri screenshot bukti chat konsumen.
      */
     public function show(Lead $lead)
     {
-        $lead->load(['unit.photos', 'assignedUser', 'whatsappMessages']);
-
-        // Ambil semua pesan masuk & keluar yang berkaitan dengan nomor HP lead
-        $messages = WhatsAppMessage::where('phone_number', $lead->phone)
-            ->orWhere('lead_id', $lead->id)
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $lead->load(['unit.photos', 'assignedUser', 'chatProofs.uploader']);
 
         $units = Unit::select('id', 'code', 'title', 'price', 'status')->get();
         $users = User::where('is_active', true)->select('id', 'name', 'role')->get();
 
-        return view('admin.leads.show', compact('lead', 'messages', 'units', 'users'));
+        return view('admin.leads.show', compact('lead', 'units', 'users'));
     }
 
     /**
@@ -153,42 +145,48 @@ class LeadController extends Controller
     }
 
     /**
-     * Kirim balasan pesan WhatsApp langsung dari dashboard admin.
+     * Upload screenshot bukti percakapan chat WhatsApp konsumen yang tertarik.
      */
-    public function sendReply(Request $request, Lead $lead, WhatsAppGateway $gateway)
+    public function uploadChatProof(Request $request, Lead $lead)
     {
         $validated = $request->validate([
-            'message' => ['required', 'string', 'max:2000'],
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'], // Max 5MB
+            'title' => ['nullable', 'string', 'max:150'],
+            'notes' => ['nullable', 'string', 'max:1000'],
         ], [
-            'message.required' => 'Isi pesan balasan tidak boleh kosong.',
+            'image.required' => 'File gambar screenshot bukti chat wajib diunggah.',
+            'image.image' => 'File harus berupa format gambar valid (JPG, PNG, WebP).',
+            'image.max' => 'Ukuran file gambar maksimal 5 MB.',
         ]);
 
-        $messageText = trim($validated['message']);
+        $path = $request->file('image')->store('chat_proofs', 'public');
 
-        // Kirim via gateway (FakeGateway / Fonnte / Waha)
-        $sent = $gateway->send($lead->phone, $messageText);
-
-        // Catat ke whatsapp_messages sebagai outbound
-        WhatsAppMessage::create([
-            'lead_id' => $lead->id,
-            'message_id' => 'out-' . time() . '-' . uniqid(),
-            'direction' => 'outbound',
-            'phone_number' => $lead->phone,
-            'message_body' => $messageText,
-            'status' => $sent ? 'sent' : 'failed',
-            'gateway_provider' => config('whatsapp.default', 'fake'),
-            'payload' => [
-                'sender_user_id' => auth()->id(),
-                'sender_name' => auth()->user()->name,
-            ],
+        $lead->chatProofs()->create([
+            'image_path' => $path,
+            'title' => $validated['title'] ?? 'Bukti Chat WhatsApp Konsumen',
+            'notes' => $validated['notes'],
+            'uploaded_by' => auth()->id(),
         ]);
 
-        // Update status lead ke Follow-up jika sebelumnya Baru atau Tertarik
-        if (in_array($lead->status, ['Baru', 'Tertarik'])) {
-            $lead->update(['status' => 'Follow-up']);
+        // Otomatis update status ke "Tertarik" atau "Follow-up" jika sebelumnya Baru
+        if ($lead->status === 'Baru') {
+            $lead->update(['status' => 'Tertarik']);
         }
 
-        return back()->with('success', 'Pesan balasan WhatsApp berhasil dikirim.');
+        return back()->with('success', 'Bukti percakapan WhatsApp konsumen berhasil diunggah dan disimpan ke CRM.');
+    }
+
+    /**
+     * Hapus screenshot bukti chat.
+     */
+    public function deleteChatProof(\App\Models\LeadChatProof $proof)
+    {
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($proof->image_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($proof->image_path);
+        }
+
+        $proof->delete();
+        return back()->with('success', 'Bukti chat berhasil dihapus.');
     }
 
     /**
