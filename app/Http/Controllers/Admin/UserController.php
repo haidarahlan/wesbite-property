@@ -85,4 +85,62 @@ class UserController extends Controller
         $statusText = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
         return back()->with('success', "Akun {$user->name} berhasil {$statusText}.");
     }
+
+    /**
+     * Tambah user baru (HANYA MANAGING DIRECTOR).
+     */
+    public function store(Request $request)
+    {
+        if (!auth()->user()->isManagingDirector()) {
+            abort(403, 'Hanya Managing Director yang memiliki hak akses membuat akun user baru.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'role' => ['required', 'in:managing_director,superadmin,admin'],
+            'password' => ['required', 'string', 'min:6'],
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'role.required' => 'Role wajib dipilih.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'role' => $validated['role'],
+            'password' => Hash::make($validated['password']),
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', "Akun {$user->name} ({$user->role}) berhasil ditambahkan.");
+    }
+
+    /**
+     * Ubah role akun user (HANYA MANAGING DIRECTOR).
+     */
+    public function updateRole(Request $request, User $user)
+    {
+        if (!auth()->user()->isManagingDirector()) {
+            abort(403, 'Hanya Managing Director yang berhak mengubah role pengguna.');
+        }
+
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Anda tidak dapat mengubah role akun Anda sendiri.');
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'in:managing_director,superadmin,admin'],
+        ]);
+
+        $user->update(['role' => $validated['role']]);
+
+        return back()->with('success', "Role pengguna {$user->name} berhasil diperbarui menjadi {$user->role}.");
+    }
 }

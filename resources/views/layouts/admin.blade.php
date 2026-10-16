@@ -110,7 +110,9 @@
                     </div>
                     <div class="hidden sm:flex flex-col text-left">
                         <span class="text-xs font-bold text-gray-200">{{ auth()->user()->name }}</span>
-                        <span class="text-[10px] text-amber-400/80 font-medium uppercase">{{ auth()->user()->role }}</span>
+                        <span class="text-[10px] text-amber-400/80 font-medium uppercase">
+                            {{ str_replace('_', ' ', auth()->user()->role) }}
+                        </span>
                     </div>
 
                     <!-- Tombol Logout -->
@@ -171,7 +173,9 @@
             </a>
 
             @if(auth()->check() && auth()->user()->isSuperAdmin())
-                <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-amber-500/80 px-3 mb-1">SUPERADMIN ONLY</div>
+                <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-amber-500/80 px-3 mb-1">
+                    {{ auth()->user()->isManagingDirector() ? 'MANAGING DIRECTOR' : 'SUPERADMIN ONLY' }}
+                </div>
                 
                 <a href="{{ route('admin.acquisitions.index') }}" 
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.acquisitions.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
@@ -196,13 +200,17 @@
                     <i class="fa-solid fa-users-gear text-sm"></i>
                     <span>Manajemen User</span>
                 </a>
+
                 <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-1">ANALITIK & LAPORAN</div>
                 
-                <a href="{{ route('admin.analytics.dashboard') }}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.analytics.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                    <i class="fa-solid fa-chart-line text-sm text-cyan-400"></i>
-                    <span>Executive Dashboard</span>
-                </a>
+                {{-- Executive Dashboard HANYA untuk Managing Director --}}
+                @if(auth()->user()->isManagingDirector())
+                    <a href="{{ route('admin.analytics.dashboard') }}" 
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.analytics.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                        <i class="fa-solid fa-chart-line text-sm text-cyan-400"></i>
+                        <span>Executive Dashboard</span>
+                    </a>
+                @endif
 
                 <a href="{{ route('admin.reports.index') }}" 
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.reports.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">

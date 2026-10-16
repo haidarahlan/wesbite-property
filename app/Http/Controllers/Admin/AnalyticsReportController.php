@@ -18,18 +18,20 @@ class AnalyticsReportController extends Controller
 {
     public function __construct()
     {
+        // Akses analitik dan laporan hanya untuk Superadmin dan Managing Director
         if (auth()->check() && !auth()->user()->isSuperAdmin()) {
-            abort(403, 'Hanya Superadmin yang memiliki hak akses Executive Dashboard & Generator Laporan.');
+            abort(403, 'Anda tidak memiliki hak akses Analitik & Laporan.');
         }
     }
 
     /**
      * Executive Dashboard: Visualisasi Funnel CRM, Metrik KPI, & Grafik Efektivitas Channel.
+     * HANYA BISA DIAKSES OLEH MANAGING DIRECTOR.
      */
     public function dashboard(Request $request)
     {
-        if (!auth()->user()->isSuperAdmin()) {
-            abort(403, 'Hanya Superadmin yang memiliki hak akses Executive Dashboard & Generator Laporan.');
+        if (!auth()->user()->isManagingDirector()) {
+            abort(403, 'Akses Terbatas: Executive Dashboard & Metrik Finansial hanya dapat diakses oleh Managing Director.');
         }
 
         // 1. Funnel Konversi CRM (BPMN Pipeline)

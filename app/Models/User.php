@@ -36,14 +36,28 @@ class User extends Authenticatable
         ];
     }
 
-    public function isSuperAdmin(): bool
+    /**
+     * Cek apakah user adalah Managing Director (Top Level / Full Modul).
+     */
+    public function isManagingDirector(): bool
     {
-        return $this->role === 'superadmin';
+        return $this->role === 'managing_director';
     }
 
+    /**
+     * Cek apakah user adalah Superadmin (Akses luas, tetapi dibatasi dari Executive Dashboard).
+     */
+    public function isSuperAdmin(): bool
+    {
+        return in_array($this->role, ['managing_director', 'superadmin']);
+    }
+
+    /**
+     * Cek apakah user memiliki hak akses dashboard / modul CRM (MD, Superadmin, Admin).
+     */
     public function isAdmin(): bool
     {
-        return in_array($this->role, ['superadmin', 'admin']);
+        return in_array($this->role, ['managing_director', 'superadmin', 'admin']);
     }
 
     public function assignedLeads(): \Illuminate\Database\Eloquent\Relations\HasMany

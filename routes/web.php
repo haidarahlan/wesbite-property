@@ -19,8 +19,6 @@ Route::post('/cek-ketersediaan/{token}', [\App\Http\Controllers\DeveloperConfirm
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
@@ -30,8 +28,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('units/photos/{photo}', [UnitController::class, 'deletePhoto'])->name('units.photos.destroy');
     Route::delete('units/{id}/force', [UnitController::class, 'forceDelete'])->name('units.force-delete');
 
-    // Manajemen User (Khusus Superadmin)
+    // Manajemen User (Superadmin & Managing Director)
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.update-role');
     Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 

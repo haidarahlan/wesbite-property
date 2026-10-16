@@ -79,11 +79,6 @@
                     Masuk Sekarang
                 </button>
             </form>
-
-            <div class="mt-6 pt-5 border-t border-[#2B3543] text-center text-xs text-gray-400">
-                Belum punya akun admin? 
-                <a href="{{ route('register') }}" class="text-[#C5A038] hover:underline font-semibold">Daftar Admin Baru</a>
-            </div>
         </div>
 
         <!-- Back to Website Link -->

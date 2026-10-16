@@ -17,11 +17,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Akun Superadmin & Admin
-        $superadmin = User::firstOrCreate(
+        // 1. Akun Default 3 Role (Managing Director, Superadmin, Admin Marketing)
+        $managingDirector = User::updateOrCreate(
+            ['email' => 'director@wastuproperty.co.id'],
+            [
+                'name' => 'Managing Director',
+                'password' => Hash::make('123456'),
+                'role' => 'managing_director',
+                'phone' => '081122334455',
+                'is_active' => true,
+            ]
+        );
+
+        $superadmin = User::updateOrCreate(
             ['email' => 'superadmin@wastuproperty.co.id'],
             [
-                'name' => 'Managing Director (Superadmin)',
+                'name' => 'Superadmin Operasional',
                 'password' => Hash::make('123456'),
                 'role' => 'superadmin',
                 'phone' => '081234567890',
@@ -29,7 +40,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $admin = User::firstOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@wastuproperty.co.id'],
             [
                 'name' => 'Marketing Officer (Admin)',
