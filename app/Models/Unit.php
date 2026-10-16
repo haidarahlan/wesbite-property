@@ -83,6 +83,11 @@ class Unit extends Model
         return $this->hasMany(UnitStatusHistory::class)->latest();
     }
 
+    public function availabilityRequests(): HasMany
+    {
+        return $this->hasMany(AvailabilityRequest::class)->latest();
+    }
+
     public function getFormattedPriceAttribute(): string
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');

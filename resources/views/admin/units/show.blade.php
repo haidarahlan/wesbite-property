@@ -25,6 +25,16 @@
         </div>
 
         <div class="flex items-center gap-2">
+            @if($unit->developer)
+                <form action="{{ route('admin.units.check-availability', $unit->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer" title="Kirim link verifikasi stok ke developer">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Minta Cek Ketersediaan</span>
+                    </button>
+                </form>
+            @endif
+
             <a href="{{ route('admin.units.edit', $unit->id) }}" 
                class="px-4 py-2 bg-[#C5A038] hover:bg-[#B08C2B] text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-2">
                 <i class="fa-solid fa-pen-to-square"></i>
@@ -37,6 +47,37 @@
             </a>
         </div>
     </div>
+
+    <!-- Alert Modal Hasil Pembuatan Link Cek Ketersediaan (Fase 4B) -->
+    @if(session('availability_success'))
+        @php $avail = session('availability_success'); @endphp
+        <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-5 shadow-lg space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-emerald-300 font-bold text-sm">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                    <span>Tautan Cek Ketersediaan Berhasil Dibuat (Berlaku 48 Jam)</span>
+                </div>
+                <a href="{{ $avail['wa_link'] }}" target="_blank" 
+                   class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-md transition-all">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Kirim Pesan ke Developer Sekarang</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-2">
+                <div class="bg-[#161B22] p-3 rounded-xl border border-[#2B3543]">
+                    <span class="text-gray-400 block mb-1">Tautan Publik Konfirmasi Developer:</span>
+                    <a href="{{ $avail['confirm_url'] }}" target="_blank" class="text-blue-400 hover:underline font-mono text-[11px] break-all">
+                        {{ $avail['confirm_url'] }}
+                    </a>
+                </div>
+                <div class="bg-[#161B22] p-3 rounded-xl border border-[#2B3543]">
+                    <span class="text-gray-400 block mb-1">Tujuan Developer:</span>
+                    <div class="font-bold text-white">{{ $avail['dev_name'] }} <span class="text-emerald-400 font-mono">({{ $avail['dev_phone'] }})</span></div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Main Detail Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

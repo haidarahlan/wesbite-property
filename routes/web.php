@@ -11,6 +11,10 @@ Route::get('/properti/{slug}', [\App\Http\Controllers\PublicController::class, '
 Route::post('/properti/{slug}/minat', [\App\Http\Controllers\PublicController::class, 'submitInterest'])->name('user.properties.interest');
 Route::get('/sitemap.xml', [\App\Http\Controllers\PublicController::class, 'sitemap'])->name('public.sitemap');
 
+// Halaman Publik Konfirmasi Ketersediaan Developer via Token (Fase 4B)
+Route::get('/cek-ketersediaan/{token}', [\App\Http\Controllers\DeveloperConfirmationController::class, 'show'])->name('public.developer.confirm');
+Route::post('/cek-ketersediaan/{token}', [\App\Http\Controllers\DeveloperConfirmationController::class, 'submit'])->name('public.developer.confirm.submit');
+
 // Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -66,6 +70,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::put('/surveys/{survey}', [\App\Http\Controllers\Admin\SurveyController::class, 'update'])->name('surveys.update');
     Route::post('/surveys/{survey}/manual-reminder', [\App\Http\Controllers\Admin\SurveyController::class, 'sendManualReminder'])->name('surveys.manual-reminder');
     Route::delete('/surveys/{survey}', [\App\Http\Controllers\Admin\SurveyController::class, 'destroy'])->name('surveys.destroy');
+
+    // Mitra Developer & Cek Ketersediaan Token (Fase 4A & 4B)
+    Route::resource('developers', \App\Http\Controllers\Admin\DeveloperController::class);
+    Route::post('/units/{unit}/check-availability', [\App\Http\Controllers\Admin\AvailabilityRequestController::class, 'store'])->name('units.check-availability');
 });
 
 // Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)

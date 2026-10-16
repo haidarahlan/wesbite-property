@@ -63,6 +63,11 @@ class UnitController extends Controller
             $query->where('district', $request->subdistrict);
         }
 
+        // Filter Developer Mitra (Fase 4A)
+        if ($request->filled('developer_id') && $request->developer_id !== 'all') {
+            $query->where('developer_id', $request->developer_id);
+        }
+
         // Sorting
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');

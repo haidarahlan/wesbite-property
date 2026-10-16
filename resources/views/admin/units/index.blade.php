@@ -252,7 +252,14 @@
                                         <a href="{{ route('admin.units.show', $unit->id) }}" class="font-bold text-white hover:text-[#C5A038] transition-colors block">
                                             {{ $unit->title }}
                                         </a>
-                                        <span class="text-[10px] font-mono text-[#C5A038]">{{ $unit->code }}</span>
+                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                            <span class="text-[10px] font-mono text-[#C5A038]">{{ $unit->code }}</span>
+                                            @if($unit->developer)
+                                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-[#161B22] text-gray-400 border border-[#2B3543] truncate max-w-[120px]" title="Developer: {{ $unit->developer->name }}">
+                                                    <i class="fa-solid fa-handshake text-[8px] text-amber-400 mr-0.5"></i>{{ $unit->developer->name }}
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </td>

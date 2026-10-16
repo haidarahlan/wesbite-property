@@ -199,10 +199,16 @@
                 @endif
             </a>
 
+            <a href="{{ route('admin.developers.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.developers.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <i class="fa-solid fa-handshake text-sm text-amber-400"></i>
+                <span>Mitra Developer</span>
+            </a>
+
             <div class="pt-6 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-2">FASE MENDATANG</div>
             <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
-                <i class="fa-solid fa-handshake text-sm"></i>
-                <span>Developer (Fase 4)</span>
+                <i class="fa-solid fa-chart-pie text-sm"></i>
+                <span>Laporan & Analitik (Fase 5)</span>
             </div>
         </aside>
 
