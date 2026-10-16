@@ -9,11 +9,22 @@ use Illuminate\Validation\Rule;
 
 class DeveloperController extends Controller
 {
+    public function __construct()
+    {
+        // Pastikan hanya Superadmin yang dapat mengakses modul mitra developer
+        if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses manajemen mitra developer.');
+        }
+    }
+
     /**
      * Tampilkan daftar developer / mitra properti.
      */
     public function index(Request $request)
     {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses manajemen mitra developer.');
+        }
         $query = Developer::withCount('units')->latest();
 
         // Filter status kerja sama

@@ -20,7 +20,15 @@ class SurveyController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+
         $query = Survey::with(['lead', 'unit', 'pic'])->latest('survey_date');
+
+        // OPSI A: Jika Marketing/Admin biasa, hanya tampilkan survei yang ditugaskan kepada dirinya
+        if (!$isSuperAdmin) {
+            $query->where('pic_user_id', $user->id);
+        }
 
         // Filter status
         if ($request->filled('status') && $request->status !== 'all') {
@@ -55,13 +63,18 @@ class SurveyController extends Controller
 
         $surveys = $query->paginate(15)->withQueryString();
 
-        // Metrik Ringkas
-        $totalSurveys = Survey::count();
-        $scheduledSurveys = Survey::where('status', 'Terjadwal')->count();
-        $tomorrowSurveys = Survey::where('status', 'Terjadwal')
+        // Metrik Ringkas (Sesuai cakupan akses user)
+        $baseMetrics = Survey::query();
+        if (!$isSuperAdmin) {
+            $baseMetrics->where('pic_user_id', $user->id);
+        }
+
+        $totalSurveys = (clone $baseMetrics)->count();
+        $scheduledSurveys = (clone $baseMetrics)->where('status', 'Terjadwal')->count();
+        $tomorrowSurveys = (clone $baseMetrics)->where('status', 'Terjadwal')
             ->whereDate('survey_date', Carbon::tomorrow())
             ->count();
-        $completedSurveys = Survey::where('status', 'Selesai')->count();
+        $completedSurveys = (clone $baseMetrics)->where('status', 'Selesai')->count();
 
         $leads = Lead::whereIn('status', ['Tertarik', 'Follow-up', 'Baru', 'Survei Terjadwal'])
             ->select('id', 'name', 'phone', 'reference_code', 'unit_id')

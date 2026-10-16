@@ -17,15 +17,23 @@
                 <i class="fa-solid fa-calendar-check text-[#C5A038]"></i>
                 <span>Jadwal Survei Lapangan</span>
             </h1>
-            <p class="text-xs text-gray-400">Atur agenda kunjungan calon konsumen ke unit properti, otomatisasi pengingat H-1, dan dokumentasikan hasil kunjungan.</p>
+            <p class="text-xs text-gray-400">
+                @if(auth()->user()->isSuperAdmin())
+                    Monitoring seluruh jadwal survei tim marketing, kelola penugasan PIC, dan kirim pengingat H-1.
+                @else
+                    Daftar agenda kunjungan survei lapangan yang ditugaskan kepada Anda. Silakan update hasil kunjungan setelah survei selesai.
+                @endif
+            </p>
         </div>
 
         <div class="flex items-center gap-3">
-            <button @click="openCreateModal = true"
-                    class="px-4 py-2.5 bg-[#C5A038] hover:bg-[#b08d2e] text-white text-xs font-semibold rounded-xl shadow-lg shadow-[#C5A038]/20 flex items-center gap-2 transition-all cursor-pointer">
-                <i class="fa-solid fa-calendar-plus"></i>
-                <span>Jadwalkan Survei Baru</span>
-            </button>
+            @if(auth()->user()->isSuperAdmin())
+                <button @click="openCreateModal = true"
+                        class="px-4 py-2.5 bg-[#C5A038] hover:bg-[#b08d2e] text-white text-xs font-semibold rounded-xl shadow-lg shadow-[#C5A038]/20 flex items-center gap-2 transition-all cursor-pointer">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    <span>Jadwalkan Survei Baru</span>
+                </button>
+            @endif
         </div>
     </div>
 

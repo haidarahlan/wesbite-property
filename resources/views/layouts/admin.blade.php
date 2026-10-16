@@ -136,8 +136,8 @@
                 <span>Manajemen Unit</span>
             </a>
 
-            <a href="{{ url('/admin/cms') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-gray-400 hover:text-white hover:bg-[#1F2731] transition-all">
+            <a href="{{ route('admin.cms.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.cms.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
                 <i class="fa-solid fa-sliders text-sm"></i>
                 <span>CMS Company Profile</span>
             </a>
@@ -164,23 +164,6 @@
                 @endif
             </a>
 
-            @if(auth()->check() && auth()->user()->isSuperAdmin())
-                <a href="{{ route('admin.whatsapp.rules.index') }}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.whatsapp.rules.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                    <i class="fa-solid fa-robot text-sm text-indigo-400"></i>
-                    <span>Aturan Filter & FAQ</span>
-                </a>
-            @endif
-
-            @if(auth()->check() && auth()->user()->isSuperAdmin())
-                <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-amber-500/80 px-3 mb-1">SUPERADMIN ONLY</div>
-                <a href="{{ route('admin.users.index') }}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.users.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                    <i class="fa-solid fa-users-gear text-sm"></i>
-                    <span>Manajemen User</span>
-                </a>
-            @endif
-
             <a href="{{ route('admin.surveys.index') }}" 
                class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.surveys.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
                 <div class="flex items-center gap-3">
@@ -199,11 +182,27 @@
                 @endif
             </a>
 
-            <a href="{{ route('admin.developers.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.developers.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                <i class="fa-solid fa-handshake text-sm text-amber-400"></i>
-                <span>Mitra Developer</span>
-            </a>
+            @if(auth()->check() && auth()->user()->isSuperAdmin())
+                <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-amber-500/80 px-3 mb-1">SUPERADMIN ONLY</div>
+                
+                <a href="{{ route('admin.developers.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.developers.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-handshake text-sm text-amber-400"></i>
+                    <span>Mitra Developer</span>
+                </a>
+
+                <a href="{{ route('admin.whatsapp.rules.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.whatsapp.rules.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-robot text-sm text-indigo-400"></i>
+                    <span>Aturan Filter & FAQ</span>
+                </a>
+
+                <a href="{{ route('admin.users.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.users.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-users-gear text-sm"></i>
+                    <span>Manajemen User</span>
+                </a>
+            @endif
 
             <div class="pt-6 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-2">FASE MENDATANG</div>
             <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
