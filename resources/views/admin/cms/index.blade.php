@@ -148,10 +148,50 @@
             <p class="text-xs text-gray-400">Ubah judul utama dan deskripsi pada banner atas halaman depan.</p>
         </div>
 
-        <form action="{{ route('admin.cms.section.update', 'hero') }}" method="POST" class="space-y-4">
+        <form action="{{ route('admin.cms.section.update', 'hero') }}" method="POST" enctype="multipart/form-data" class="space-y-4" x-data="{ imagePreview: null }">
             @csrf
             @method('PUT')
-            <div class="space-y-3 text-xs">
+            <div class="space-y-4 text-xs">
+                
+                <!-- Gambar Background Hero Banner -->
+                <div class="p-4 bg-[#14181E] border border-[#2B3543] rounded-2xl space-y-3">
+                    <label class="block font-semibold text-gray-300">
+                        Foto Background Hero Banner
+                        <span class="text-gray-400 font-normal ml-1">(Rasio ideal landscape 16:9, Maks. 3 MB)</span>
+                    </label>
+
+                    <div class="flex flex-col sm:flex-row gap-4 items-start">
+                        <!-- Current / Preview Thumbnail -->
+                        <div class="relative w-full sm:w-64 h-36 rounded-xl overflow-hidden border border-[#2B3543] bg-[#0D1117] shrink-0">
+                            <!-- Live Preview if selected -->
+                            <template x-if="imagePreview">
+                                <img :src="imagePreview" alt="Preview Gambar Baru" class="w-full h-full object-cover">
+                            </template>
+
+                            <!-- Existing Image if no preview -->
+                            <template x-if="!imagePreview">
+                                <img src="{{ $hero && $hero->image_path ? asset('storage/' . $hero->image_path) : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80' }}" 
+                                     alt="Hero Banner Saat Ini" 
+                                     class="w-full h-full object-cover">
+                            </template>
+
+                            <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] text-gray-200 font-medium">
+                                {{ $hero && $hero->image_path ? 'Gambar Kustom Aktif' : 'Gambar Default Sistem' }}
+                            </div>
+                        </div>
+
+                        <!-- Upload Input & Guidance -->
+                        <div class="flex-1 space-y-2">
+                            <input type="file" name="image" accept="image/jpeg,image/png,image/webp"
+                                   @change="const file = $event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { imagePreview = e.target.result }; reader.readAsDataURL(file); }"
+                                   class="w-full bg-[#1F2731] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#C5A038] file:text-white hover:file:bg-[#b08d2e] cursor-pointer">
+                            <p class="text-[11px] text-gray-400">
+                                Pilih gambar baru jika ingin mengganti latar belakang hero banner pada halaman utama website publik. Biarkan kosong jika ingin tetap menggunakan gambar saat ini.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block font-semibold text-gray-300 mb-1">Tagline Kecil (Badge)</label>
                     <input type="text" name="subtitle" value="{{ $hero->subtitle }}" required
@@ -171,7 +211,7 @@
             </div>
 
             <div class="pt-3 border-t border-[#2B3543] flex justify-end">
-                <button type="submit" class="px-6 py-2.5 bg-[#C5A038] hover:bg-[#B08C2B] text-white text-xs font-bold rounded-xl shadow-lg">
+                <button type="submit" class="px-6 py-2.5 bg-[#C5A038] hover:bg-[#B08C2B] text-white text-xs font-bold rounded-xl shadow-lg cursor-pointer">
                     Perbarui Hero Banner
                 </button>
             </div>
