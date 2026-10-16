@@ -37,4 +37,9 @@ class Lead extends Model
     {
         return $this->hasMany(WhatsAppMessage::class)->latest();
     }
+
+    public function surveys(): HasMany
+    {
+        return $this->hasMany(Survey::class)->latest('survey_date');
+    }
 }

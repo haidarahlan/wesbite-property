@@ -59,6 +59,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::put('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'update'])->name('leads.update');
     Route::post('/leads/{lead}/reply', [\App\Http\Controllers\Admin\LeadController::class, 'sendReply'])->name('leads.reply');
     Route::delete('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'destroy'])->name('leads.destroy');
+
+    // Survei Lapangan & Pengingat H-1 (Fase 3D)
+    Route::get('/surveys', [\App\Http\Controllers\Admin\SurveyController::class, 'index'])->name('surveys.index');
+    Route::post('/surveys', [\App\Http\Controllers\Admin\SurveyController::class, 'store'])->name('surveys.store');
+    Route::put('/surveys/{survey}', [\App\Http\Controllers\Admin\SurveyController::class, 'update'])->name('surveys.update');
+    Route::post('/surveys/{survey}/manual-reminder', [\App\Http\Controllers\Admin\SurveyController::class, 'sendManualReminder'])->name('surveys.manual-reminder');
+    Route::delete('/surveys/{survey}', [\App\Http\Controllers\Admin\SurveyController::class, 'destroy'])->name('surveys.destroy');
 });
 
 // Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)

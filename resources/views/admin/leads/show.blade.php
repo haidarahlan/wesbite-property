@@ -27,6 +27,11 @@
         </div>
 
         <div class="flex items-center gap-2">
+            <a href="{{ route('admin.surveys.index') }}?search={{ urlencode($lead->phone) }}" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl shadow-lg shadow-purple-600/20 flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>Jadwalkan Survei</span>
+            </a>
+
             <a href="{{ route('admin.leads.index') }}" class="px-3.5 py-2 bg-[#232B35] hover:bg-[#2B3543] text-gray-300 text-xs font-semibold rounded-xl border border-[#2B3543] flex items-center gap-2 transition-all">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>Kembali ke Daftar</span>

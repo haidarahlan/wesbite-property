@@ -181,11 +181,25 @@
                 </a>
             @endif
 
+            <a href="{{ route('admin.surveys.index') }}" 
+               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.surveys.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-calendar-check text-sm text-purple-400"></i>
+                    <span>Survei Lapangan</span>
+                </div>
+                @php
+                    $tomorrowSurveyCount = \App\Models\Survey::where('status', 'Terjadwal')
+                        ->whereDate('survey_date', \Carbon\Carbon::tomorrow())
+                        ->count();
+                @endphp
+                @if($tomorrowSurveyCount > 0)
+                    <span class="px-2 py-0.5 text-[10px] font-bold bg-amber-500 text-white rounded-full" title="Survei H-1 Besok">
+                        {{ $tomorrowSurveyCount }}
+                    </span>
+                @endif
+            </a>
+
             <div class="pt-6 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-2">FASE MENDATANG</div>
-            <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
-                <i class="fa-solid fa-calendar-check text-sm"></i>
-                <span>Survei Lapangan (3D)</span>
-            </div>
             <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
                 <i class="fa-solid fa-handshake text-sm"></i>
                 <span>Developer (Fase 4)</span>
