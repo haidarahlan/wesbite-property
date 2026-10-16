@@ -74,7 +74,8 @@ class SurveyController extends Controller
             ->count();
         $completedSurveys = (clone $baseMetrics)->where('status', 'Selesai')->count();
 
-        $leads = Lead::whereIn('status', ['Tertarik', 'Follow-up', 'Baru', 'Survei Terjadwal'])
+        // Konsumen hanya yang berstatus "Survei Terjadwal"
+        $leads = Lead::where('status', 'Survei Terjadwal')
             ->select('id', 'name', 'phone', 'reference_code', 'unit_id')
             ->orderBy('name')
             ->get();
@@ -137,6 +138,11 @@ class SurveyController extends Controller
      */
     public function update(Request $request, Survey $survey)
     {
+        $user = auth()->user();
+        if (!$user->isSuperAdmin() && $survey->pic_user_id !== $user->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah survei milik PIC lain.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', Rule::in(['Terjadwal', 'Selesai', 'Dibatalkan', 'Dijadwal Ulang'])],
             'survey_date' => ['required', 'date'],
@@ -164,6 +170,11 @@ class SurveyController extends Controller
      */
     public function destroy(Survey $survey)
     {
+        $user = auth()->user();
+        if (!$user->isSuperAdmin() && $survey->pic_user_id !== $user->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus survei milik PIC lain.');
+        }
+
         $survey->delete();
         return back()->with('success', 'Jadwal survei berhasil dihapus.');
     }

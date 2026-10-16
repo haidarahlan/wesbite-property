@@ -136,12 +136,6 @@
                 <span>Manajemen Unit</span>
             </a>
 
-            <a href="{{ route('admin.cms.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.cms.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                <i class="fa-solid fa-sliders text-sm"></i>
-                <span>CMS Company Profile</span>
-            </a>
-
             <a href="{{ route('admin.leads.index') }}" 
                class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.leads.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
                 <div class="flex items-center gap-3">
@@ -176,15 +170,21 @@
                 @endif
             </a>
 
-            <a href="{{ route('admin.acquisitions.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.acquisitions.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                <i class="fa-solid fa-bullseye text-sm text-rose-400"></i>
-                <span>Target & Usulan Unit</span>
-            </a>
-
             @if(auth()->check() && auth()->user()->isSuperAdmin())
                 <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-amber-500/80 px-3 mb-1">SUPERADMIN ONLY</div>
                 
+                <a href="{{ route('admin.acquisitions.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.acquisitions.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-bullseye text-sm text-rose-400"></i>
+                    <span>Target Unit</span>
+                </a>
+
+                <a href="{{ route('admin.cms.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.cms.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-sliders text-sm text-[#C5A038]"></i>
+                    <span>CMS Company Profile</span>
+                </a>
+
                 <a href="{{ route('admin.developers.index') }}" 
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.developers.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
                     <i class="fa-solid fa-handshake text-sm text-amber-400"></i>
@@ -196,21 +196,20 @@
                     <i class="fa-solid fa-users-gear text-sm"></i>
                     <span>Manajemen User</span>
                 </a>
+                <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-1">ANALITIK & LAPORAN</div>
+                
+                <a href="{{ route('admin.analytics.dashboard') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.analytics.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-chart-line text-sm text-cyan-400"></i>
+                    <span>Executive Dashboard</span>
+                </a>
+
+                <a href="{{ route('admin.reports.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.reports.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                    <i class="fa-solid fa-file-invoice text-sm text-emerald-400"></i>
+                    <span>Generator Laporan</span>
+                </a>
             @endif
-
-            <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-1">ANALITIK & LAPORAN</div>
-            
-            <a href="{{ route('admin.analytics.dashboard') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.analytics.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                <i class="fa-solid fa-chart-line text-sm text-cyan-400"></i>
-                <span>Executive Dashboard</span>
-            </a>
-
-            <a href="{{ route('admin.reports.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.reports.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
-                <i class="fa-solid fa-file-invoice text-sm text-emerald-400"></i>
-                <span>Generator Laporan</span>
-            </a>
         </aside>
 
         <!-- Main Content Dark Area -->

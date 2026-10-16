@@ -256,24 +256,52 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3" x-data="{ leadStatus: 'Baru' }">
                     <div>
                         <label class="block text-gray-300 font-semibold mb-1">Status Awal</label>
-                        <select name="status" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                        <select name="status" x-model="leadStatus" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
                             <option value="Baru">Baru</option>
                             <option value="Tertarik">Tertarik</option>
                             <option value="Follow-up">Follow-up</option>
+                            <option value="Survei Terjadwal">Survei Terjadwal</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-gray-300 font-semibold mb-1">Tugaskan ke (PIC)</label>
-                        <select name="assigned_to" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
-                            <option value="">-- Pilih PIC --</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ ucfirst($user->role) }})</option>
-                            @endforeach
-                        </select>
+                        @if(auth()->user()->isSuperAdmin())
+                            <select name="assigned_to" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ auth()->id() == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }} ({{ ucfirst($user->role) }}) {{ auth()->id() == $user->id ? '— (Anda)' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <input type="hidden" name="assigned_to" value="{{ auth()->id() }}">
+                            <div class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-[#C5A038] font-semibold flex items-center gap-2">
+                                <i class="fa-solid fa-user-check text-xs"></i>
+                                <span>{{ auth()->user()->name }} (Anda)</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Input Tanggal & Waktu Survei Lapangan (Muncul Otomatis Jika Status Survei Terjadwal) -->
+                    <div class="col-span-2 p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl space-y-2.5" x-show="leadStatus === 'Survei Terjadwal'" x-cloak>
+                        <div class="flex items-center gap-2 text-purple-300 font-bold text-xs">
+                            <i class="fa-solid fa-calendar-check text-[#C5A038]"></i>
+                            <span>Atur Jadwal Survei Lapangan (Otomatis Masuk ke Modul Survei)</span>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-[11px] font-semibold mb-1">Tanggal & Waktu Survei <span class="text-red-400">*</span></label>
+                            <input type="datetime-local" name="survey_date" min="{{ now()->format('Y-m-d\TH:i') }}"
+                                   class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-[11px] font-semibold mb-1">Titik Kumpul / Catatan Survei</label>
+                            <input type="text" name="survey_notes" placeholder="Contoh: Bertemu di lokasi jam 10 pagi..."
+                                   class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                        </div>
                     </div>
                 </div>
 

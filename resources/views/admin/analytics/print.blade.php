@@ -52,20 +52,65 @@
         <div class="card">
             <div class="card-label">Total Leads Masuk</div>
             <div class="card-value">{{ $leads->count() }} Konsumen</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">{{ $leads->whereNotNull('assigned_to')->count() }} ditangani PIC</div>
         </div>
         <div class="card">
             <div class="card-label">Survei Lapangan</div>
             <div class="card-value">{{ $surveys->where('status', 'Selesai')->count() }} / {{ $surveys->count() }} Agenda</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">Realisasi kunjungan konsumen</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Target Unit Penjualan</div>
+            <div class="card-value">{{ $acquisitionTargets->sum('target_units') }} Unit Target</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">{{ $soldUnits->count() }} unit closing tercapai</div>
         </div>
         <div class="card">
             <div class="card-label">Unit Closing Terjual</div>
             <div class="card-value">{{ $soldUnits->count() }} Properti</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">Est. Rp {{ number_format($totalClosingValue, 0, ',', '.') }}</div>
         </div>
     </div>
 
-    <!-- Tabel Rekap Leads -->
+    <!-- Bagian 1: Laporan Target & Realisasi Penjualan Unit -->
     <h3 style="font-size: 13px; margin-bottom: 8px; border-left: 3px solid #C5A038; padding-left: 8px;">
-        1. Ringkasan Prospek & Leads Masuk (Periode Terpilih)
+        1. Rencana & Realisasi Target Penjualan Unit Properti
+    </h3>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Target Periode</th>
+                <th>Wilayah Fokus</th>
+                <th style="text-align: center;">Target Unit</th>
+                <th style="text-align: center;">Realisasi Closing</th>
+                <th>Target Nilai Closing</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($acquisitionTargets as $index => $target)
+                @php
+                    $soldCount = $target->sold_units_count;
+                    $pct = $target->units_progress_percentage;
+                @endphp
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td><strong>{{ $target->period_name }}</strong></td>
+                    <td>{{ $target->target_region ?? 'Semua Wilayah' }}</td>
+                    <td style="text-align: center; font-weight: bold;">{{ $target->target_units }} Unit</td>
+                    <td style="text-align: center; font-weight: bold; color: #0f766e;">{{ $soldCount }} Unit ({{ $pct }}%)</td>
+                    <td>{{ $target->target_value ? 'Rp ' . number_format($target->target_value, 0, ',', '.') : '-' }}</td>
+                    <td>{{ $target->status }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="7" style="text-align: center; color: #999;">Tidak ada data target unit penjualan.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <!-- Bagian 2: Tabel Rekap Leads & PIC Marketing -->
+    <h3 style="font-size: 13px; margin-bottom: 8px; border-left: 3px solid #C5A038; padding-left: 8px; margin-top: 25px;">
+        2. Ringkasan Prospek & Leads Masuk (Periode Terpilih)
     </h3>
     <table>
         <thead>
@@ -74,6 +119,8 @@
                 <th>Kode Ref</th>
                 <th>Nama Konsumen</th>
                 <th>Nomor WhatsApp</th>
+                <th>Unit Minat</th>
+                <th>PIC Marketing</th>
                 <th>Sumber</th>
                 <th>Status Akhir</th>
             </tr>
@@ -85,11 +132,13 @@
                     <td><strong>{{ $ld->reference_code }}</strong></td>
                     <td>{{ $ld->name ?? '-' }}</td>
                     <td>{{ $ld->phone }}</td>
+                    <td>{{ $ld->unit?->title ?? ($ld->unit?->code ?? '-') }}</td>
+                    <td><strong>{{ $ld->assignedUser?->name ?? 'Belum Ditugaskan' }}</strong></td>
                     <td style="text-transform: capitalize;">{{ $ld->source }}</td>
                     <td>{{ $ld->status }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" style="text-align: center; color: #999;">Tidak ada data prospek.</td></tr>
+                <tr><td colspan="8" style="text-align: center; color: #999;">Tidak ada data prospek.</td></tr>
             @endforelse
         </tbody>
     </table>

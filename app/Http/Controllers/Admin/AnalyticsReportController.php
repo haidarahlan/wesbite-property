@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcquisitionCandidate;
+use App\Models\AcquisitionTarget;
 use App\Models\DailySnapshot;
 use App\Models\Lead;
 use App\Models\Survey;
@@ -14,11 +16,22 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AnalyticsReportController extends Controller
 {
+    public function __construct()
+    {
+        if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses Executive Dashboard & Generator Laporan.');
+        }
+    }
+
     /**
      * Executive Dashboard: Visualisasi Funnel CRM, Metrik KPI, & Grafik Efektivitas Channel.
      */
     public function dashboard(Request $request)
     {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses Executive Dashboard & Generator Laporan.');
+        }
+
         // 1. Funnel Konversi CRM (BPMN Pipeline)
         $totalLeads = Lead::count();
         $interestedLeads = Lead::whereIn('status', ['Tertarik', 'Follow-up', 'Survei Terjadwal', 'Survei Selesai', 'Closing'])->count();
@@ -87,23 +100,49 @@ class AnalyticsReportController extends Controller
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->toDateString());
 
+        $parsedStart = Carbon::parse($startDate)->startOfDay();
+        $parsedEnd = Carbon::parse($endDate)->endOfDay();
+
         // Ambil Data Berdasarkan Rentang Tanggal
-        $leads = Lead::with('unit')
-            ->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()])
+        $leads = Lead::with(['unit', 'assignedUser'])
+            ->whereBetween('created_at', [$parsedStart, $parsedEnd])
             ->latest()
             ->get();
 
         $surveys = Survey::with(['lead', 'unit', 'pic'])
-            ->whereBetween('survey_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()])
+            ->whereBetween('survey_date', [$parsedStart, $parsedEnd])
             ->latest('survey_date')
             ->get();
 
         $soldUnits = Unit::where('status', 'Terjual')
-            ->whereBetween('updated_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()])
+            ->whereBetween('updated_at', [$parsedStart, $parsedEnd])
             ->latest()
             ->get();
 
-        return view('admin.analytics.reports', compact('startDate', 'endDate', 'leads', 'surveys', 'soldUnits'));
+        // Data Target & Usulan Akuisisi Unit
+        $acquisitionTargets = AcquisitionTarget::with(['createdBy', 'candidates'])
+            ->where(function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('start_date', [$startDate, $endDate])
+                  ->orWhereBetween('end_date', [$startDate, $endDate])
+                  ->orWhere('status', 'Aktif');
+            })
+            ->latest()
+            ->get();
+
+        $acquisitionCandidates = AcquisitionCandidate::with(['target', 'submitter'])
+            ->whereBetween('created_at', [$parsedStart, $parsedEnd])
+            ->latest()
+            ->get();
+
+        return view('admin.analytics.reports', compact(
+            'startDate',
+            'endDate',
+            'leads',
+            'surveys',
+            'soldUnits',
+            'acquisitionTargets',
+            'acquisitionCandidates'
+        ));
     }
 
     /**
@@ -123,7 +162,7 @@ class AnalyticsReportController extends Controller
 
         return response()->streamDownload(function () use ($leads) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Kode Ref', 'Nama Konsumen', 'No. WhatsApp', 'Unit Minat', 'Sumber', 'Status', 'PIC', 'Tanggal Masuk', 'Catatan']);
+            fputcsv($handle, ['Kode Ref', 'Nama Konsumen', 'No. WhatsApp', 'Unit Minat', 'Sumber', 'Status', 'PIC Marketing', 'Tanggal Masuk', 'Catatan']);
 
             foreach ($leads as $lead) {
                 fputcsv($handle, [
@@ -154,12 +193,47 @@ class AnalyticsReportController extends Controller
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->toDateString());
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->toDateString());
 
-        $leads = Lead::whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()])->get();
-        $surveys = Survey::with(['lead', 'unit'])->whereBetween('survey_date', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()])->get();
+        $parsedStart = Carbon::parse($startDate)->startOfDay();
+        $parsedEnd = Carbon::parse($endDate)->endOfDay();
+
+        $leads = Lead::with(['unit', 'assignedUser'])
+            ->whereBetween('created_at', [$parsedStart, $parsedEnd])
+            ->latest()
+            ->get();
+
+        $surveys = Survey::with(['lead', 'unit', 'pic'])
+            ->whereBetween('survey_date', [$parsedStart, $parsedEnd])
+            ->latest('survey_date')
+            ->get();
+
         $soldUnits = Unit::where('status', 'Terjual')->get();
 
         $totalClosingValue = Unit::where('status', 'Terjual')->sum('price');
 
-        return view('admin.analytics.print', compact('startDate', 'endDate', 'leads', 'surveys', 'soldUnits', 'totalClosingValue'));
+        // Target Akuisisi Unit untuk dokumen cetak Managing Director
+        $acquisitionTargets = AcquisitionTarget::with(['createdBy', 'candidates'])
+            ->where(function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('start_date', [$startDate, $endDate])
+                  ->orWhereBetween('end_date', [$startDate, $endDate])
+                  ->orWhere('status', 'Aktif');
+            })
+            ->latest()
+            ->get();
+
+        $acquisitionCandidates = AcquisitionCandidate::with(['target', 'submitter'])
+            ->whereBetween('created_at', [$parsedStart, $parsedEnd])
+            ->latest()
+            ->get();
+
+        return view('admin.analytics.print', compact(
+            'startDate',
+            'endDate',
+            'leads',
+            'surveys',
+            'soldUnits',
+            'totalClosingValue',
+            'acquisitionTargets',
+            'acquisitionCandidates'
+        ));
     }
 }

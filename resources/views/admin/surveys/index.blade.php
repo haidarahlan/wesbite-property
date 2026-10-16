@@ -27,13 +27,11 @@
         </div>
 
         <div class="flex items-center gap-3">
-            @if(auth()->user()->isSuperAdmin())
-                <button @click="openCreateModal = true"
-                        class="px-4 py-2.5 bg-[#C5A038] hover:bg-[#b08d2e] text-white text-xs font-semibold rounded-xl shadow-lg shadow-[#C5A038]/20 flex items-center gap-2 transition-all cursor-pointer">
-                    <i class="fa-solid fa-calendar-plus"></i>
-                    <span>Jadwalkan Survei Baru</span>
-                </button>
-            @endif
+            <button @click="openCreateModal = true"
+                    class="px-4 py-2.5 bg-[#C5A038] hover:bg-[#b08d2e] text-white text-xs font-semibold rounded-xl shadow-lg shadow-[#C5A038]/20 flex items-center gap-2 transition-all cursor-pointer">
+                <i class="fa-solid fa-calendar-plus"></i>
+                <span>Jadwalkan Survei Baru</span>
+            </button>
         </div>
     </div>
 
@@ -276,23 +274,28 @@
                 </button>
             </div>
 
-            <form action="{{ route('admin.surveys.store') }}" method="POST" class="space-y-3.5">
+            <form action="{{ route('admin.surveys.store') }}" method="POST" class="space-y-3.5" x-data="{ selectedLeadId: '', leadUnits: {{ $leads->pluck('unit_id', 'id')->toJson() }} }">
                 @csrf
                 <div>
-                    <label class="block text-gray-300 font-semibold mb-1">Pilih Calon Pembeli (Lead) <span class="text-red-400">*</span></label>
-                    <select name="lead_id" required class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
-                        <option value="">-- Pilih Konsumen --</option>
-                        @foreach($leads as $ld)
+                    <label class="block text-gray-300 font-semibold mb-1">
+                        Pilih Calon Pembeli (Lead) <span class="text-red-400">*</span>
+                        <span class="text-[10px] text-purple-400 font-normal ml-1">(Khusus prospek berstatus Survei Terjadwal)</span>
+                    </label>
+                    <select name="lead_id" x-model="selectedLeadId" required class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                        <option value="">-- Pilih Konsumen (Survei Terjadwal) --</option>
+                        @forelse($leads as $ld)
                             <option value="{{ $ld->id }}">
                                 {{ $ld->name ?? 'Tanpa Nama' }} ({{ $ld->phone }}) - [{{ $ld->reference_code }}]
                             </option>
-                        @endforeach
+                        @empty
+                            <option value="" disabled>Tidak ada lead berstatus Survei Terjadwal saat ini</option>
+                        @endforelse
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-gray-300 font-semibold mb-1">Unit Properti yang Akan Dikunjungi <span class="text-red-400">*</span></label>
-                    <select name="unit_id" required class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                    <select name="unit_id" :value="leadUnits[selectedLeadId] || ''" required class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
                         <option value="">-- Pilih Unit Properti --</option>
                         @foreach($units as $unit)
                             <option value="{{ $unit->id }}">[{{ $unit->code }}] {{ $unit->title }}</option>
@@ -326,10 +329,10 @@
                               class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none"></textarea>
                 </div>
 
-                <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-[11px] text-emerald-300 flex items-start gap-2">
-                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm mt-0.5"></i>
+                <div class="p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl text-[11px] text-purple-300 flex items-start gap-2">
+                    <i class="fa-solid fa-info-circle text-[#C5A038] text-sm mt-0.5"></i>
                     <div>
-                        <span class="font-bold">Konfirmasi Otomatis:</span> Setelah disimpan, sistem otomatis mengirim pesan konfirmasi agenda survei ke nomor WhatsApp konsumen.
+                        <span class="font-bold">Sinkronisasi Otomatis:</span> Jadwal ini otomatis tersimpan ke agenda PIC Marketing dan status prospek di CRM tetap terkoneksi. Anda dapat langsung mengirim pesan pengingat ke WhatsApp konsumen via tombol WhatsApp di tabel survei.
                     </div>
                 </div>
 
@@ -338,7 +341,7 @@
                         Batal
                     </button>
                     <button type="submit" class="px-4 py-2 bg-[#C5A038] hover:bg-[#b08d2e] text-white rounded-xl font-semibold shadow-md">
-                        Jadwalkan & Kirim WA
+                        Simpan Jadwal Survei
                     </button>
                 </div>
             </form>

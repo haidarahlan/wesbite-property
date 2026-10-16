@@ -46,29 +46,48 @@ class AcquisitionTarget extends Model
     }
 
     /**
-     * Hitung persentase capaian unit yang disetujui terhadap target.
+     * Ambil unit yang berhasil terjual (closing) dalam rentang periode target.
+     */
+    public function soldUnits()
+    {
+        return Unit::where('status', 'Terjual')
+            ->whereBetween('updated_at', [
+                $this->start_date->copy()->startOfDay(),
+                $this->end_date->copy()->endOfDay()
+            ]);
+    }
+
+    /**
+     * Hitung total unit yang terjual dalam periode ini.
+     */
+    public function getSoldUnitsCountAttribute(): int
+    {
+        return $this->soldUnits()->count();
+    }
+
+    /**
+     * Hitung total nilai transaksi closing dalam periode ini.
+     */
+    public function getSoldUnitsValueAttribute(): float
+    {
+        return (float) $this->soldUnits()->sum('price');
+    }
+
+    /**
+     * Hitung persentase capaian unit terjual terhadap target.
      */
     public function getUnitsProgressPercentageAttribute(): float
     {
         if ($this->target_units <= 0) return 0;
-        $approvedCount = $this->approvedCandidates()->count();
-        return min(100, round(($approvedCount / $this->target_units) * 100, 1));
+        return min(100, round(($this->sold_units_count / $this->target_units) * 100, 1));
     }
 
     /**
-     * Hitung total nilai estimasi properti yang disetujui.
-     */
-    public function getAcquiredValueAttribute(): float
-    {
-        return (float) $this->approvedCandidates()->sum('estimated_price');
-    }
-
-    /**
-     * Hitung persentase nilai akuisisi terhadap target nilai.
+     * Hitung persentase nilai closing terhadap target nilai.
      */
     public function getValueProgressPercentageAttribute(): float
     {
         if ($this->target_value <= 0) return 0;
-        return min(100, round(($this->acquired_value / $this->target_value) * 100, 1));
+        return min(100, round(($this->sold_units_value / $this->target_value) * 100, 1));
     }
 }

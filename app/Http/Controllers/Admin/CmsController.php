@@ -14,11 +14,22 @@ use Illuminate\Support\Facades\Cache;
 
 class CmsController extends Controller
 {
+    public function __construct()
+    {
+        if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses CMS Company Profile.');
+        }
+    }
+
     /**
      * Dashboard CMS Company Profile.
      */
     public function index()
     {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses CMS Company Profile.');
+        }
+
         $settings = SiteSetting::all()->pluck('value', 'key');
         
         $hero = CompanySection::firstOrCreate(

@@ -12,55 +12,35 @@ use Illuminate\Validation\Rule;
 
 class AcquisitionController extends Controller
 {
+    public function __construct()
+    {
+        if (auth()->check() && !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses Target & Usulan Unit.');
+        }
+    }
+
     /**
-     * Tampilkan daftar target akuisisi & kandidat properti yang diajukan tim lapangan.
+     * Tampilkan daftar target unit penjualan properti.
      */
     public function index(Request $request)
     {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Superadmin yang memiliki hak akses Target Unit.');
+        }
+
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
 
-        // 1. Data Target Akuisisi
-        $targets = AcquisitionTarget::withCount(['candidates', 'approvedCandidates'])
-            ->with(['createdBy'])
+        // Data Target Unit
+        $targets = AcquisitionTarget::with(['createdBy'])
             ->latest()
             ->get();
 
         $activeTarget = AcquisitionTarget::where('status', 'Aktif')->latest()->first();
 
-        // 2. Data Kandidat Properti
-        $candidatesQuery = AcquisitionCandidate::with(['target', 'submitter', 'reviewer', 'convertedUnit'])
-            ->latest();
-
-        // Jika tim marketing biasa (bukan superadmin), tampilkan kandidat yang diajukan olehnya sendiri
-        if (!$isSuperAdmin) {
-            $candidatesQuery->where('submitted_by', $user->id);
-        }
-
-        // Filter status kandidat
-        if ($request->filled('status') && $request->status !== 'all') {
-            $candidatesQuery->where('status', $request->status);
-        }
-
-        // Filter target periode
-        if ($request->filled('target_id') && $request->target_id !== 'all') {
-            $candidatesQuery->where('target_id', $request->target_id);
-        }
-
-        $candidates = $candidatesQuery->paginate(15)->withQueryString();
-
-        // Ringkasan Statistik
-        $totalCandidates = (clone $candidatesQuery)->count();
-        $pendingCandidates = (clone $candidatesQuery)->where('status', 'Diajukan')->count();
-        $approvedCandidates = (clone $candidatesQuery)->where('status', 'Disetujui')->count();
-
         return view('admin.acquisitions.index', compact(
             'targets',
             'activeTarget',
-            'candidates',
-            'totalCandidates',
-            'pendingCandidates',
-            'approvedCandidates',
             'isSuperAdmin'
         ));
     }

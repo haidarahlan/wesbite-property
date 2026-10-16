@@ -74,7 +74,7 @@
                     </span>
                 </h3>
 
-                <form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="space-y-3.5 text-xs">
+                <form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="space-y-3.5 text-xs" x-data="{ currentStatus: '{{ $lead->status }}' }">
                     @csrf
                     @method('PUT')
 
@@ -92,13 +92,36 @@
 
                     <div>
                         <label class="block text-gray-400 font-medium mb-1">Status Prospek</label>
-                        <select name="status" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none font-semibold">
+                        <select name="status" x-model="currentStatus" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none font-semibold">
                             @foreach(['Baru', 'Tertarik', 'Tidak Tertarik', 'Follow-up', 'Survei Terjadwal', 'Survei Selesai', 'Closing', 'Batal'] as $st)
-                                <option value="{{ $st }}" {{ $lead->status === $st ? 'selected' : '' }}>
+                                <option value="{{ $st }}">
                                     ● {{ $st }}
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <!-- Input Dinamis Agenda Survei Lapangan (Muncul jika status Survei Terjadwal) -->
+                    <div class="p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl space-y-2.5" x-show="currentStatus === 'Survei Terjadwal'" x-cloak>
+                        <div class="flex items-center gap-2 text-purple-300 font-bold text-xs">
+                            <i class="fa-solid fa-calendar-check text-[#C5A038]"></i>
+                            <span>Sinkronisasi Survei Lapangan</span>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-[11px] font-semibold mb-1">Tanggal & Waktu Kunjungan <span class="text-red-400">*</span></label>
+                            <input type="datetime-local" name="survey_date" 
+                                   value="{{ $latestSurvey ? $latestSurvey->survey_date->format('Y-m-d\TH:i') : '' }}"
+                                   min="{{ now()->format('Y-m-d\TH:i') }}"
+                                   class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                            <span class="text-[10px] text-gray-400 mt-0.5 block">Jadwal ini otomatis tercatat di modul Survei Lapangan.</span>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-[11px] font-semibold mb-1">Titik Kumpul / Catatan Survei</label>
+                            <input type="text" name="survey_notes" 
+                                   value="{{ $latestSurvey ? $latestSurvey->notes : '' }}"
+                                   placeholder="Contoh: Bertemu di gerbang perumahan jam 10 pagi..."
+                                   class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                        </div>
                     </div>
 
                     <div>
@@ -114,15 +137,23 @@
                     </div>
 
                     <div>
-                        <label class="block text-gray-400 font-medium mb-1">Tugaskan PIC Marketing</label>
-                        <select name="assigned_to" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
-                            <option value="">-- Belum Ditugaskan --</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ $lead->assigned_to == $user->id ? 'selected' : '' }}>
-                                    {{ $user->name }} ({{ ucfirst($user->role) }})
-                                </option>
-                            @endforeach
-                        </select>
+                        <label class="block text-gray-400 font-medium mb-1">PIC Marketing</label>
+                        @if(auth()->user()->isSuperAdmin())
+                            <select name="assigned_to" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                                <option value="">-- Belum Ditugaskan --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ $lead->assigned_to == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }} ({{ ucfirst($user->role) }}) {{ auth()->id() == $user->id ? '— (Anda)' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <input type="hidden" name="assigned_to" value="{{ $lead->assigned_to ?? auth()->id() }}">
+                            <div class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-[#C5A038] font-semibold flex items-center gap-2">
+                                <i class="fa-solid fa-user-check text-xs"></i>
+                                <span>{{ $lead->assignedUser->name ?? auth()->user()->name }} (PIC Saat Ini)</span>
+                            </div>
+                        @endif
                     </div>
 
                     <div>
@@ -160,6 +191,52 @@
                             <h4 class="font-bold text-white mt-1">{{ $lead->unit->title }}</h4>
                             <div class="text-[#C5A038] font-black text-sm mt-0.5">Rp {{ number_format($lead->unit->price, 0, ',', '.') }}</div>
                         </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Card Informasi Agenda Survei Aktif (Jika Ada) -->
+            @if($latestSurvey)
+                <div class="bg-[#1F2731] border border-purple-500/30 rounded-2xl p-5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-[#2B3543] pb-2 text-xs">
+                        <span class="text-purple-300 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar-check text-[#C5A038]"></i>
+                            <span>Agenda Survei Lapangan</span>
+                        </span>
+                        <a href="{{ route('admin.surveys.index') }}?search={{ urlencode($lead->phone) }}" class="text-[#C5A038] hover:underline text-[11px] flex items-center gap-1">
+                            <span>Buka di Survei</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </a>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Jadwal Kunjungan:</span>
+                            <span class="text-white font-bold">{{ $latestSurvey->survey_date->translatedFormat('d M Y, H:i') }} WIB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Status Pelaksanaan:</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                {{ $latestSurvey->status }}
+                            </span>
+                        </div>
+                        @if($latestSurvey->pic)
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">PIC Pendamping:</span>
+                                <span class="text-gray-200 font-medium">{{ $latestSurvey->pic->name }}</span>
+                            </div>
+                        @endif
+                        @if($latestSurvey->notes)
+                            <div class="pt-2 border-t border-[#2B3543]/60 text-[11px] text-gray-300">
+                                <span class="text-gray-400 font-semibold block mb-0.5">Titik Kumpul / Catatan:</span>
+                                <p class="italic bg-[#161B22] p-2 rounded-xl border border-[#2B3543]">{{ $latestSurvey->notes }}</p>
+                            </div>
+                        @endif
+                        @if($latestSurvey->result)
+                            <div class="pt-1 text-[11px] text-emerald-300">
+                                <span class="text-emerald-400 font-semibold block mb-0.5">Hasil Kunjungan:</span>
+                                <p class="bg-emerald-950/30 p-2 rounded-xl border border-emerald-500/20">{{ $latestSurvey->result }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endif

@@ -16,7 +16,18 @@ class LeadController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+
         $query = Lead::with(['unit', 'assignedUser'])->latest();
+
+        // JIKA ADMIN BIASA (MARKETING): Hanya tampilkan lead miliknya sendiri (atau yang belum ditugaskan/diambil)
+        if (!$isSuperAdmin) {
+            $query->where(function ($q) use ($user) {
+                $q->where('assigned_to', $user->id)
+                  ->orWhereNull('assigned_to');
+            });
+        }
 
         // Filter status
         if ($request->filled('status') && $request->status !== 'all') {
@@ -44,12 +55,20 @@ class LeadController extends Controller
 
         $leads = $query->paginate(15)->withQueryString();
 
-        // Hitung statistik ringkas untuk kartu atas
-        $totalLeads = Lead::count();
-        $newLeads = Lead::where('status', 'Baru')->count();
-        $interestedLeads = Lead::where('status', 'Tertarik')->count();
-        $followUpLeads = Lead::where('status', 'Follow-up')->count();
-        $surveyLeads = Lead::whereIn('status', ['Survei Terjadwal', 'Survei Selesai'])->count();
+        // Hitung statistik ringkas untuk kartu atas (Sesuai Hak Akses Pengguna)
+        $metricQuery = Lead::query();
+        if (!$isSuperAdmin) {
+            $metricQuery->where(function ($q) use ($user) {
+                $q->where('assigned_to', $user->id)
+                  ->orWhereNull('assigned_to');
+            });
+        }
+
+        $totalLeads = (clone $metricQuery)->count();
+        $newLeads = (clone $metricQuery)->where('status', 'Baru')->count();
+        $interestedLeads = (clone $metricQuery)->where('status', 'Tertarik')->count();
+        $followUpLeads = (clone $metricQuery)->where('status', 'Follow-up')->count();
+        $surveyLeads = (clone $metricQuery)->whereIn('status', ['Survei Terjadwal', 'Survei Selesai'])->count();
 
         $units = Unit::select('id', 'code', 'title')->orderBy('code')->get();
         $users = User::where('is_active', true)->select('id', 'name', 'role')->get();
@@ -81,9 +100,12 @@ class LeadController extends Controller
             ])],
             'assigned_to' => ['nullable', 'exists:users,id'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'survey_date' => ['nullable', 'required_if:status,Survei Terjadwal', 'date'],
+            'survey_notes' => ['nullable', 'string', 'max:500'],
         ], [
             'name.required' => 'Nama lead wajib diisi.',
             'phone.required' => 'Nomor telepon wajib diisi.',
+            'survey_date.required_if' => 'Tanggal & jam survei wajib diisi jika status dipilih Survei Terjadwal.',
         ]);
 
         // Bersihkan format nomor HP (ke format 62)
@@ -93,11 +115,28 @@ class LeadController extends Controller
         }
         $validated['phone'] = $cleanPhone;
 
+        // Otomatis tugaskan ke user yang sedang login jika tidak dipilih atau jika bukan superadmin
+        if (empty($validated['assigned_to']) || !auth()->user()->isSuperAdmin()) {
+            $validated['assigned_to'] = auth()->id();
+        }
+
         // Generate Kode Referensi Unik
         $count = Lead::withTrashed()->count() + 1;
         $validated['reference_code'] = 'L-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
 
         $lead = Lead::create($validated);
+
+        // Jika status Survei Terjadwal, otomatis buat record di tabel surveys (Survei Lapangan)
+        if ($validated['status'] === 'Survei Terjadwal' && !empty($validated['survey_date']) && $lead->unit_id) {
+            \App\Models\Survey::create([
+                'lead_id' => $lead->id,
+                'unit_id' => $lead->unit_id,
+                'pic_user_id' => $lead->assigned_to ?? auth()->id(),
+                'survey_date' => $validated['survey_date'],
+                'status' => 'Terjadwal',
+                'notes' => $validated['survey_notes'] ?? $lead->notes,
+            ]);
+        }
 
         return redirect()->route('admin.leads.show', $lead->id)
             ->with('success', "Lead berhasil ditambahkan dengan kode referensi {$lead->reference_code}.");
@@ -108,19 +147,31 @@ class LeadController extends Controller
      */
     public function show(Lead $lead)
     {
-        $lead->load(['unit.photos', 'assignedUser', 'chatProofs.uploader']);
+        $user = auth()->user();
+        if (!$user->isSuperAdmin() && $lead->assigned_to && $lead->assigned_to !== $user->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat data prospek milik marketing lain.');
+        }
+
+        $lead->load(['unit.photos', 'assignedUser', 'chatProofs.uploader', 'surveys']);
+
+        $latestSurvey = $lead->surveys()->first();
 
         $units = Unit::select('id', 'code', 'title', 'price', 'status')->get();
         $users = User::where('is_active', true)->select('id', 'name', 'role')->get();
 
-        return view('admin.leads.show', compact('lead', 'units', 'users'));
+        return view('admin.leads.show', compact('lead', 'units', 'users', 'latestSurvey'));
     }
 
     /**
-     * Perbarui data lead (status, catatan, PIC, unit).
+     * Perbarui data lead (status, catatan, PIC, unit, & sinkronisasi agenda survei).
      */
     public function update(Request $request, Lead $lead)
     {
+        $user = auth()->user();
+        if (!$user->isSuperAdmin() && $lead->assigned_to && $lead->assigned_to !== $user->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah data prospek milik marketing lain.');
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string', 'max:30'],
@@ -130,6 +181,10 @@ class LeadController extends Controller
             ])],
             'assigned_to' => ['nullable', 'exists:users,id'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'survey_date' => ['nullable', 'required_if:status,Survei Terjadwal', 'date'],
+            'survey_notes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'survey_date.required_if' => 'Tanggal & jam survei wajib ditentukan ketika status diubah ke Survei Terjadwal.',
         ]);
 
         // Bersihkan nomor
@@ -141,7 +196,38 @@ class LeadController extends Controller
 
         $lead->update($validated);
 
-        return back()->with('success', 'Data lead berhasil diperbarui.');
+        // SINKRONISASI OTOMATIS KE SURVEI LAPANGAN (OPSI 1)
+        if ($validated['status'] === 'Survei Terjadwal' && !empty($validated['survey_date'])) {
+            $unitId = $validated['unit_id'] ?? $lead->unit_id;
+            
+            if ($unitId) {
+                // Cari survei aktif yang masih terjadwal milik lead ini, jika ada update; jika belum ada create baru
+                $existingSurvey = \App\Models\Survey::where('lead_id', $lead->id)
+                    ->where('status', 'Terjadwal')
+                    ->latest()
+                    ->first();
+
+                if ($existingSurvey) {
+                    $existingSurvey->update([
+                        'unit_id' => $unitId,
+                        'pic_user_id' => $validated['assigned_to'] ?? $existingSurvey->pic_user_id,
+                        'survey_date' => $validated['survey_date'],
+                        'notes' => $validated['survey_notes'] ?? $existingSurvey->notes,
+                    ]);
+                } else {
+                    \App\Models\Survey::create([
+                        'lead_id' => $lead->id,
+                        'unit_id' => $unitId,
+                        'pic_user_id' => $validated['assigned_to'] ?? auth()->id(),
+                        'survey_date' => $validated['survey_date'],
+                        'status' => 'Terjadwal',
+                        'notes' => $validated['survey_notes'] ?? $lead->notes,
+                    ]);
+                }
+            }
+        }
+
+        return back()->with('success', 'Data lead dan agenda survei berhasil disinkronkan.');
     }
 
     /**
@@ -194,6 +280,11 @@ class LeadController extends Controller
      */
     public function destroy(Lead $lead)
     {
+        $user = auth()->user();
+        if (!$user->isSuperAdmin() && $lead->assigned_to && $lead->assigned_to !== $user->id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus data prospek milik marketing lain.');
+        }
+
         $code = $lead->reference_code;
         $lead->delete();
 
