@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthController;
 Route::get('/', [\App\Http\Controllers\PublicController::class, 'home'])->name('public.home');
 Route::get('/properti', [\App\Http\Controllers\PublicController::class, 'properties'])->name('public.properties');
 Route::get('/properti/{slug}', [\App\Http\Controllers\PublicController::class, 'propertyDetail'])->name('public.property.detail');
+Route::post('/properti/{slug}/minat', [\App\Http\Controllers\PublicController::class, 'submitInterest'])->name('user.properties.interest');
 Route::get('/sitemap.xml', [\App\Http\Controllers\PublicController::class, 'sitemap'])->name('public.sitemap');
 
 // Authentication Routes
@@ -50,6 +51,14 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::patch('/whatsapp/rules/{rule}/toggle', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'toggleRule'])->name('whatsapp.rules.toggle');
     Route::post('/whatsapp/templates', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'storeFaqTemplate'])->name('whatsapp.templates.store');
     Route::delete('/whatsapp/templates/{template}', [\App\Http\Controllers\Admin\WhatsAppRuleController::class, 'destroyFaqTemplate'])->name('whatsapp.templates.destroy');
+
+    // Manajemen Leads & Chat (Fase 3C)
+    Route::get('/leads', [\App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
+    Route::post('/leads', [\App\Http\Controllers\Admin\LeadController::class, 'store'])->name('leads.store');
+    Route::get('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'show'])->name('leads.show');
+    Route::put('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'update'])->name('leads.update');
+    Route::post('/leads/{lead}/reply', [\App\Http\Controllers\Admin\LeadController::class, 'sendReply'])->name('leads.reply');
+    Route::delete('/leads/{lead}', [\App\Http\Controllers\Admin\LeadController::class, 'destroy'])->name('leads.destroy');
 });
 
 // Webhook WhatsApp (Terbuka untuk provider eksternal / CSRF exempt)

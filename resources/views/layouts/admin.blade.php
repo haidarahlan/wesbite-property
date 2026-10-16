@@ -148,6 +148,22 @@
                 <span>Simulator WhatsApp</span>
             </a>
 
+            <a href="{{ route('admin.leads.index') }}" 
+               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.leads.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-users text-sm text-blue-400"></i>
+                    <span>Manajemen Leads</span>
+                </div>
+                @php
+                    $unreadLeadCount = \App\Models\Lead::where('status', 'Baru')->count();
+                @endphp
+                @if($unreadLeadCount > 0)
+                    <span class="px-2 py-0.5 text-[10px] font-bold bg-blue-500 text-white rounded-full">
+                        {{ $unreadLeadCount }}
+                    </span>
+                @endif
+            </a>
+
             @if(auth()->check() && auth()->user()->isSuperAdmin())
                 <a href="{{ route('admin.whatsapp.rules.index') }}" 
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.whatsapp.rules.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
@@ -167,8 +183,8 @@
 
             <div class="pt-6 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-2">FASE MENDATANG</div>
             <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
-                <i class="fa-solid fa-users text-sm"></i>
-                <span>Leads (Fase 3)</span>
+                <i class="fa-solid fa-calendar-check text-sm"></i>
+                <span>Survei Lapangan (3D)</span>
             </div>
             <div class="px-3.5 py-2 text-xs text-gray-400 flex items-center gap-3 cursor-not-allowed">
                 <i class="fa-solid fa-handshake text-sm"></i>

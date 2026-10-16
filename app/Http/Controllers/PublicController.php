@@ -158,6 +158,63 @@ class PublicController extends Controller
     }
 
     /**
+     * Handle formulir minat dari pengunjung website publik.
+     * Membuat lead baru, men-generate kode referensi (L-xxxx),
+     * mengirim notifikasi ke admin, dan redirect ke WhatsApp Business.
+     */
+    public function submitInterest(Request $request, string $slug)
+    {
+        $unit = Unit::where('slug', $slug)->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'phone' => ['required', 'string', 'max:30'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'phone.required' => 'Nomor WhatsApp wajib diisi.',
+        ]);
+
+        // Standarisasi nomor HP (62xxx)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $validated['phone']);
+        if (str_starts_with($cleanPhone, '0')) {
+            $cleanPhone = '62' . substr($cleanPhone, 1);
+        }
+
+        // Generate Kode Referensi Unik: L-0001
+        $count = Lead::withTrashed()->count() + 1;
+        $referenceCode = 'L-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+
+        $lead = Lead::create([
+            'reference_code' => $referenceCode,
+            'name' => $validated['name'],
+            'phone' => $cleanPhone,
+            'unit_id' => $unit->id,
+            'source' => 'website',
+            'status' => 'Tertarik',
+            'notes' => $validated['notes'] ? "Minat Website: " . $validated['notes'] : "Minat langsung dari formulir website.",
+        ]);
+
+        // Kirim notifikasi sistem ke Superadmin & Admin
+        $admins = \App\Models\User::where('is_active', true)->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\NewLeadNotification($lead));
+        }
+
+        // Teks WA yang rapi menyertakan Kode Referensi
+        $settings = SiteSetting::allGrouped();
+        $whatsappNumber = $settings['whatsapp_business'] ?? '6281234567890';
+
+        $text = "Halo Wastu Property,\nSaya *{$lead->name}* (Ref: *{$lead->reference_code}*).\nSaya berminat dengan properti *{$unit->title}* ({$unit->code}).\n"
+              . ($validated['notes'] ? "Catatan: {$validated['notes']}\n" : "")
+              . "Mohon informasi jadwal survei lokasi dan simulasi pembayarannya. Terima kasih.";
+
+        $waUrl = "https://wa.me/{$whatsappNumber}?text=" . rawurlencode($text);
+
+        return redirect()->away($waUrl);
+    }
+
+    /**
      * XML Sitemap generator untuk SEO Google.
      */
     public function sitemap()

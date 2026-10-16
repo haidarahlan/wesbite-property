@@ -106,31 +106,68 @@
         <!-- Right 4 Cols: CTA WhatsApp & Contact Box -->
         <div class="lg:col-span-4 space-y-6">
             
-            <!-- Sticky Contact Card -->
+            <!-- Sticky Contact Card & Formulir Minat -->
             <div class="bg-white rounded-3xl p-6 sm:p-7 border border-gray-100 shadow-xl space-y-5 sticky top-28">
                 <div>
-                    <span class="text-[11px] font-bold text-[#C5A038] uppercase tracking-wider block mb-1">Tertarik dengan Unit Ini?</span>
-                    <h3 class="text-lg font-bold text-gray-900 leading-snug">Hubungi Tim Marketing Wastu Property</h3>
-                    <p class="text-xs text-gray-500 mt-1">Dapatkan jadwal survei lokasi dan konsultasi skema pembayaran (Cash / KPR).</p>
+                    <span class="text-[11px] font-bold text-[#C5A038] uppercase tracking-wider block mb-1">Formulir Minat & Survei</span>
+                    <h3 class="text-lg font-bold text-gray-900 leading-snug">Jadwalkan Kunjungan Unit</h3>
+                    <p class="text-xs text-gray-500 mt-1">Isi formulir singkat di bawah ini untuk mendapatkan nomor referensi resmi dan terhubung langsung ke marketing.</p>
                 </div>
 
-                <div class="p-4 bg-amber-50/60 rounded-2xl border border-amber-100 text-xs text-gray-700">
-                    <p class="font-semibold text-gray-900 mb-1">Pesan Otomatis WhatsApp:</p>
-                    <p class="text-[11px] italic text-gray-600 bg-white p-2.5 rounded-xl border border-amber-200">
-                        "{{ $waMessage }}"
-                    </p>
+                @if($errors->any())
+                    <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs">
+                        <ul class="list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Formulir Minat Konsumen (Fase 3C) -->
+                <form action="{{ route('user.properties.interest', $unit->slug) }}" method="POST" class="space-y-3.5">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required placeholder="Contoh: Budi Santoso" value="{{ old('name') }}"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-[#C5A038] focus:border-[#C5A038] transition-all bg-gray-50/50">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Nomor WhatsApp Aktif <span class="text-red-500">*</span></label>
+                        <input type="text" name="phone" required placeholder="Contoh: 081234567890" value="{{ old('phone') }}"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-[#C5A038] focus:border-[#C5A038] transition-all bg-gray-50/50">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Pertanyaan / Rencana Survei (Opsional)</label>
+                        <textarea name="notes" rows="2" placeholder="Contoh: Apakah bisa survei hari Sabtu? Simulasi KPR DP 10%?"
+                                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-[#C5A038] focus:border-[#C5A038] transition-all bg-gray-50/50">{{ old('notes') }}</textarea>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full py-3.5 px-4 rounded-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Kirim Minat & Chat WhatsApp</span>
+                    </button>
+                </form>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink mx-3 text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Atau Chat Langsung</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
                 </div>
 
-                <!-- Tombol Utama Direct WhatsApp (Click to chat) -->
+                <!-- Tombol Chat Cepat -->
                 <a href="https://wa.me/{{ $whatsappNumber }}?text={{ urlencode($waMessage) }}" 
                    target="_blank"
-                   class="w-full py-3.5 px-4 rounded-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-lg"></i>
-                    <span>Hubungi via WhatsApp</span>
+                   class="w-full py-2.5 px-4 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500"></i>
+                    <span>Tanya Cepat Tanpa Formulir</span>
                 </a>
 
                 <div class="pt-2 text-center text-[11px] text-gray-400">
-                    <p><i class="fa-solid fa-shield-halved text-[#C5A038] mr-1"></i> Transaksi Aman & Terverifikasi AREBI</p>
+                    <p><i class="fa-solid fa-shield-halved text-[#C5A038] mr-1"></i> Data Anda Aman & Terverifikasi AREBI</p>
                 </div>
             </div>
 
