@@ -105,15 +105,28 @@
 
             @auth
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-[#C5A038]/20 border border-[#C5A038]/40 flex items-center justify-center text-[#C5A038] text-xs font-bold">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div class="hidden sm:flex flex-col text-left">
-                        <span class="text-xs font-bold text-gray-200">{{ auth()->user()->name }}</span>
-                        <span class="text-[10px] text-amber-400/80 font-medium uppercase">
-                            {{ str_replace('_', ' ', auth()->user()->role) }}
-                        </span>
-                    </div>
+                    <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-2.5 p-1 -m-1 rounded-xl hover:bg-[#232B35] transition-all group" title="Pengaturan Akun & Profil">
+                        <div class="w-8 h-8 rounded-full bg-[#C5A038]/20 border border-[#C5A038]/40 overflow-hidden flex items-center justify-center text-[#C5A038] text-xs font-bold shrink-0">
+                            @if(auth()->user()->avatar_url)
+                                <img src="{{ auth()->user()->avatar_url }}" class="w-full h-full object-cover">
+                            @else
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            @endif
+                        </div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="text-xs font-bold text-gray-200 group-hover:text-[#C5A038] transition-colors">{{ auth()->user()->name }}</span>
+                            <span class="text-[10px] text-amber-400/80 font-medium uppercase">
+                                {{ str_replace('_', ' ', auth()->user()->role) }}
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- Tombol Pengaturan Akun -->
+                    <a href="{{ route('admin.profile.edit') }}" 
+                       class="p-1.5 rounded-lg bg-[#232B35] text-gray-400 hover:text-[#C5A038] hover:bg-[#2B3543] transition-colors {{ request()->routeIs('admin.profile.*') ? 'text-[#C5A038]' : '' }}" 
+                       title="Pengaturan Akun & Profil">
+                        <i class="fa-solid fa-gear text-xs"></i>
+                    </a>
 
                     <!-- Tombol Logout -->
                     <form action="{{ route('logout') }}" method="POST" class="inline">
@@ -218,6 +231,14 @@
                     <span>Generator Laporan</span>
                 </a>
             @endif
+
+            <div class="pt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 mb-1">PENGATURAN</div>
+
+            <a href="{{ route('admin.profile.edit') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold {{ request()->routeIs('admin.profile.*') ? 'bg-[#232B35] text-[#C5A038] border border-[#C5A038]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-[#1F2731]' }} transition-all">
+                <i class="fa-solid fa-user-gear text-sm text-amber-400"></i>
+                <span>Pengaturan Akun</span>
+            </a>
         </aside>
 
         <!-- Main Content Dark Area -->

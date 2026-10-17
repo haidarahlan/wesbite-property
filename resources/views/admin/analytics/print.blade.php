@@ -16,9 +16,12 @@
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 11px; }
         th { background: #f4f4f4; border-bottom: 2px solid #ddd; padding: 8px; text-align: left; font-weight: bold; }
         td { border-bottom: 1px solid #eee; padding: 8px; }
-        .signature-section { margin-top: 50px; display: flex; justify-content: flex-end; }
+        .signature-section { margin-top: 40px; display: flex; justify-content: flex-end; }
         .signature-box { text-align: center; width: 220px; }
-        .signature-line { margin-top: 70px; border-bottom: 1px solid #222; }
+        .signature-img-wrapper { height: 75px; display: flex; align-items: center; justify-content: center; margin: 5px 0; }
+        .signature-img-wrapper img { max-height: 70px; max-width: 170px; object-fit: contain; }
+        .signature-line { border-bottom: 1px solid #222; margin-top: 0; }
+        .signature-box .empty-space { height: 60px; }
         @media print {
             body { margin: 20px; }
             .no-print { display: none; }
@@ -144,12 +147,24 @@
     </table>
 
     <!-- Tanda Tangan Mengetahui -->
+    @php
+        $director = \App\Models\User::where('role', 'managing_director')->first() ?? auth()->user();
+    @endphp
     <div class="signature-section">
         <div class="signature-box">
             <div>Sleman, {{ now()->translatedFormat('d F Y') }}</div>
             <div style="margin-top: 5px; font-weight: bold;">Managing Director</div>
+            
+            @if($director && $director->signature_url)
+                <div class="signature-img-wrapper">
+                    <img src="{{ $director->signature_url }}" alt="Tanda Tangan Digital">
+                </div>
+            @else
+                <div class="empty-space"></div>
+            @endif
+
             <div class="signature-line"></div>
-            <div style="font-weight: bold; margin-top: 5px;">Haidar</div>
+            <div style="font-weight: bold; margin-top: 5px;">{{ $director->name ?? 'Managing Director' }}</div>
             <div style="font-size: 10px; color: #666;">PT Wastu Pratama Wijaya</div>
         </div>
     </div>

@@ -76,6 +76,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/reports', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'reports'])->name('reports.index');
     Route::get('/reports/print', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'printReport'])->name('reports.print');
     Route::get('/reports/export-leads', [\App\Http\Controllers\Admin\AnalyticsReportController::class, 'exportLeadsCsv'])->name('reports.export.leads');
+
+    // Pengaturan Akun & Profil (Ganti Nama, Email, Password, Foto Profil, Tanda Tangan Digital)
+    Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 Route::redirect('/dashboard', '/admin/units')->name('dashboard');

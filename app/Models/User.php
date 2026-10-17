@@ -19,8 +19,37 @@ class User extends Authenticatable
         'password',
         'role',
         'phone',
+        'avatar',
+        'signature',
         'is_active',
     ];
+
+    /**
+     * Ambil URL avatar profil atau fallback inisial avatar.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->avatar) {
+            return str_starts_with($this->avatar, 'http') ? $this->avatar : asset('storage/' . $this->avatar);
+        }
+        return null;
+    }
+
+    /**
+     * Ambil URL tanda tangan digital (file atau base64 string).
+     */
+    public function getSignatureUrlAttribute(): ?string
+    {
+        if (!$this->signature) {
+            return null;
+        }
+
+        if (str_starts_with($this->signature, 'data:image')) {
+            return $this->signature;
+        }
+
+        return str_starts_with($this->signature, 'http') ? $this->signature : asset('storage/' . $this->signature);
+    }
 
     protected $hidden = [
         'password',
