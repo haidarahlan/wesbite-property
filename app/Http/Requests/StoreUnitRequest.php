@@ -44,6 +44,7 @@ class StoreUnitRequest extends FormRequest
             'status' => ['required', 'in:Tersedia,Booking,Terjual'],
             'is_published' => ['nullable', 'boolean'],
             'valid_until' => ['nullable', 'date'],
+            'external_url' => ['nullable', 'url', 'max:500'],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'], // max 5MB per foto
             'primary_photo_index' => ['nullable', 'integer'],

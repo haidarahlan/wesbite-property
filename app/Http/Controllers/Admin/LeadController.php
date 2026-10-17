@@ -227,7 +227,7 @@ class LeadController extends Controller
             }
         }
 
-        return back()->with('success', 'Data lead dan agenda survei berhasil disinkronkan.');
+        return back()->with('success', 'Data lead, agenda survei, dan status unit berhasil disinkronkan.');
     }
 
     /**

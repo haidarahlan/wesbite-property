@@ -38,6 +38,7 @@ class Unit extends Model
         'status',
         'is_published',
         'valid_until',
+        'external_url',
     ];
 
     protected $casts = [

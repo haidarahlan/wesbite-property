@@ -85,15 +85,15 @@
                 <i class="fa-solid fa-bullseye text-[#C5A038]"></i>
             </div>
             <div class="text-2xl font-black text-[#C5A038] font-mono">{{ $acquisitionTargets->sum('target_units') }} Unit</div>
-            <div class="text-[10px] text-gray-400 mt-1">{{ $soldUnits->count() }} unit closing tercapai</div>
+            <div class="text-[10px] text-gray-400 mt-1">{{ $closingLeads->count() }} konsumen closing tercapai</div>
         </div>
         <div class="bg-[#1F2731] border border-[#2B3543] p-4 rounded-2xl">
             <div class="text-[11px] text-gray-400 mb-1 flex items-center justify-between">
-                <span>Unit Closing Terjual</span>
+                <span>Closing Penjualan</span>
                 <i class="fa-solid fa-handshake text-emerald-400"></i>
             </div>
-            <div class="text-2xl font-black text-emerald-400 font-mono">{{ $soldUnits->count() }} Unit</div>
-            <div class="text-[10px] text-gray-500 mt-1">Transaksi penjualan selesai</div>
+            <div class="text-2xl font-black text-emerald-400 font-mono">{{ $closingLeads->count() }} Closing</div>
+            <div class="text-[10px] text-gray-400 mt-1">{{ $soldUnits->count() }} unit properti ditransaksikan</div>
         </div>
     </div>
 

@@ -62,11 +62,11 @@
         <div class="card">
             <div class="card-label">Target Unit Penjualan</div>
             <div class="card-value">{{ $acquisitionTargets->sum('target_units') }} Unit Target</div>
-            <div style="font-size: 10px; color: #666; margin-top: 4px;">{{ $soldUnits->count() }} unit closing tercapai</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">{{ $closingLeads->count() }} konsumen closing tercapai</div>
         </div>
         <div class="card">
-            <div class="card-label">Unit Closing Terjual</div>
-            <div class="card-value">{{ $soldUnits->count() }} Properti</div>
+            <div class="card-label">Closing Penjualan</div>
+            <div class="card-value">{{ $closingLeads->count() }} Closing ({{ $soldUnits->count() }} Unit)</div>
             <div style="font-size: 10px; color: #666; margin-top: 4px;">Est. Rp {{ number_format($totalClosingValue, 0, ',', '.') }}</div>
         </div>
     </div>

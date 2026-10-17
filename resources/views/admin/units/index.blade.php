@@ -259,6 +259,14 @@
                                                     <i class="fa-solid fa-handshake text-[8px] text-amber-400 mr-0.5"></i>{{ $unit->developer->name }}
                                                 </span>
                                             @endif
+                                            @if($unit->external_url)
+                                                <a href="{{ $unit->external_url }}" target="_blank" 
+                                                   class="text-[9px] px-1.5 py-0.2 rounded bg-blue-950/60 text-blue-300 border border-blue-500/30 hover:bg-blue-900/60 transition-all flex items-center gap-1"
+                                                   title="Buka listing di website luar: {{ $unit->external_url }}">
+                                                    <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                                                    <span>Web Luar</span>
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

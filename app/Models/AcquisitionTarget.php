@@ -47,18 +47,33 @@ class AcquisitionTarget extends Model
 
     /**
      * Ambil unit yang berhasil terjual (closing) dalam rentang periode target.
+     * Mengambil unit berstatus 'Terjual' ATAU unit dari leads yang berhasil 'Closing' dalam rentang target.
      */
     public function soldUnits()
     {
-        return Unit::where('status', 'Terjual')
-            ->whereBetween('updated_at', [
-                $this->start_date->copy()->startOfDay(),
-                $this->end_date->copy()->endOfDay()
-            ]);
+        $start = $this->start_date ? $this->start_date->copy()->startOfDay() : null;
+        $end = $this->end_date ? $this->end_date->copy()->endOfDay() : null;
+
+        // Ambil ID unit dari leads yang closing pada periode target
+        $closingUnitIdsFromLeads = Lead::where('status', 'Closing')
+            ->whereNotNull('unit_id')
+            ->when($start && $end, function ($q) use ($start, $end) {
+                $q->where(function ($sub) use ($start, $end) {
+                    $sub->whereBetween('updated_at', [$start, $end])
+                        ->orWhereBetween('created_at', [$start, $end]);
+                });
+            })
+            ->pluck('unit_id')
+            ->toArray();
+
+        return Unit::where(function ($q) use ($start, $end, $closingUnitIdsFromLeads) {
+            $q->where('status', 'Terjual')
+              ->orWhereIn('id', $closingUnitIdsFromLeads);
+        });
     }
 
     /**
-     * Hitung total unit yang terjual dalam periode ini.
+     * Hitung total unit yang terjual / closing dalam periode ini.
      */
     public function getSoldUnitsCountAttribute(): int
     {

@@ -133,6 +133,16 @@
                     <span>Hubungi Marketing via WhatsApp</span>
                 </a>
 
+                @if($unit->external_url)
+                    <!-- Tombol Opsional: Buka Listing Eksternal -->
+                    <a href="{{ $unit->external_url }}" 
+                       target="_blank"
+                       class="w-full py-2.5 px-4 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500"></i>
+                        <span>Lihat di Portal Eksternal / Mitra</span>
+                    </a>
+                @endif
+
                 <!-- Alternatif: Kunjungan Kantor (Walk-In) -->
                 <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100 text-xs text-gray-600 space-y-2">
                     <div class="flex items-center gap-2 font-bold text-gray-800">

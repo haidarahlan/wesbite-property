@@ -88,6 +88,19 @@
                         <option value="Terjual" {{ old('status') == 'Terjual' ? 'selected' : '' }}>Terjual</option>
                     </select>
                 </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block font-semibold text-gray-300 mb-1 flex items-center justify-between">
+                        <span>Link Listing Eksternal / Website Luar <span class="text-gray-400 font-normal">(Opsional)</span></span>
+                        <span class="text-[10px] text-gray-400 font-normal">Rumah123, Lamudi, OLX, Web Developer, dll</span>
+                    </label>
+                    <div class="relative">
+                        <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="url" name="external_url" value="{{ old('external_url') }}" 
+                               placeholder="https://www.rumah123.com/properti/... atau https://lamudi.co.id/..."
+                               class="w-full pl-9 pr-4 py-2.5 bg-[#14181E] border border-[#2B3543] rounded-xl text-gray-200 placeholder-gray-500 text-xs focus:outline-none focus:border-[#C5A038]">
+                    </div>
+                </div>
             </div>
         </div>
 

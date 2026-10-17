@@ -116,10 +116,25 @@ class AnalyticsReportController extends Controller
             ->latest('survey_date')
             ->get();
 
-        $soldUnits = Unit::where('status', 'Terjual')
-            ->whereBetween('updated_at', [$parsedStart, $parsedEnd])
+        // Leads yang Closing pada rentang tanggal
+        $closingLeads = Lead::with(['unit', 'assignedUser'])
+            ->where('status', 'Closing')
+            ->where(function ($q) use ($parsedStart, $parsedEnd) {
+                $q->whereBetween('updated_at', [$parsedStart, $parsedEnd])
+                  ->orWhereBetween('created_at', [$parsedStart, $parsedEnd]);
+            })
             ->latest()
             ->get();
+
+        $closingUnitIds = $closingLeads->pluck('unit_id')->filter()->unique();
+
+        // Unit yang berstatus 'Terjual' ATAU unit dari leads yang berhasil closing
+        $soldUnits = Unit::where(function ($q) use ($parsedStart, $parsedEnd, $closingUnitIds) {
+            $q->where(function ($sub) use ($parsedStart, $parsedEnd) {
+                $sub->where('status', 'Terjual')
+                    ->whereBetween('updated_at', [$parsedStart, $parsedEnd]);
+            })->orWhereIn('id', $closingUnitIds);
+        })->latest()->get();
 
         // Data Target & Usulan Akuisisi Unit
         $acquisitionTargets = AcquisitionTarget::with(['createdBy', 'candidates'])
@@ -142,6 +157,7 @@ class AnalyticsReportController extends Controller
             'leads',
             'surveys',
             'soldUnits',
+            'closingLeads',
             'acquisitionTargets',
             'acquisitionCandidates'
         ));
@@ -208,9 +224,27 @@ class AnalyticsReportController extends Controller
             ->latest('survey_date')
             ->get();
 
-        $soldUnits = Unit::where('status', 'Terjual')->get();
+        // Leads yang Closing pada rentang tanggal
+        $closingLeads = Lead::with(['unit', 'assignedUser'])
+            ->where('status', 'Closing')
+            ->where(function ($q) use ($parsedStart, $parsedEnd) {
+                $q->whereBetween('updated_at', [$parsedStart, $parsedEnd])
+                  ->orWhereBetween('created_at', [$parsedStart, $parsedEnd]);
+            })
+            ->latest()
+            ->get();
 
-        $totalClosingValue = Unit::where('status', 'Terjual')->sum('price');
+        $closingUnitIds = $closingLeads->pluck('unit_id')->filter()->unique();
+
+        // Unit yang berstatus 'Terjual' ATAU unit dari leads yang berhasil closing
+        $soldUnits = Unit::where(function ($q) use ($parsedStart, $parsedEnd, $closingUnitIds) {
+            $q->where(function ($sub) use ($parsedStart, $parsedEnd) {
+                $sub->where('status', 'Terjual')
+                    ->whereBetween('updated_at', [$parsedStart, $parsedEnd]);
+            })->orWhereIn('id', $closingUnitIds);
+        })->latest()->get();
+
+        $totalClosingValue = (float) $soldUnits->sum('price');
 
         // Target Akuisisi Unit untuk dokumen cetak Managing Director
         $acquisitionTargets = AcquisitionTarget::with(['createdBy', 'candidates'])
@@ -233,6 +267,7 @@ class AnalyticsReportController extends Controller
             'leads',
             'surveys',
             'soldUnits',
+            'closingLeads',
             'totalClosingValue',
             'acquisitionTargets',
             'acquisitionCandidates'
