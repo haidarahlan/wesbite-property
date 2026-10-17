@@ -155,6 +155,8 @@ class UnitController extends Controller
      */
     public function edit(Unit $unit)
     {
+        Gate::authorize('update', $unit);
+
         $unit->load(['photos', 'developer']);
         $developers = Developer::all();
         return view('admin.units.edit', compact('unit', 'developers'));
@@ -165,6 +167,8 @@ class UnitController extends Controller
      */
     public function update(UpdateUnitRequest $request, Unit $unit)
     {
+        Gate::authorize('update', $unit);
+
         $this->unitService->updateUnit($unit, $request->validated(), auth()->id());
 
         return redirect()->route('admin.units.show', $unit->id)

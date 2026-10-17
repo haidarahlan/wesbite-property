@@ -303,18 +303,23 @@
                                     <a href="{{ route('admin.units.show', $unit->id) }}" class="p-1.5 rounded-lg bg-[#14181E] text-gray-300 hover:text-white hover:bg-[#28323E]" title="Detail Unit">
                                         <i class="fa-solid fa-eye text-xs"></i>
                                     </a>
-                                    <a href="{{ route('admin.units.edit', $unit->id) }}" class="p-1.5 rounded-lg bg-[#14181E] text-amber-400 hover:text-amber-300 hover:bg-[#28323E]" title="Edit Unit">
-                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
-                                    </a>
                                     
-                                    <!-- Delete (Policy: Admin/Superadmin soft delete, Superadmin can force delete) -->
-                                    <form action="{{ route('admin.units.destroy', $unit->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus unit ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 rounded-lg bg-[#14181E] text-red-400 hover:text-red-300 hover:bg-[#28323E]" title="Hapus Unit">
-                                            <i class="fa-solid fa-trash text-xs"></i>
-                                        </button>
-                                    </form>
+                                    @can('update', $unit)
+                                        <a href="{{ route('admin.units.edit', $unit->id) }}" class="p-1.5 rounded-lg bg-[#14181E] text-amber-400 hover:text-amber-300 hover:bg-[#28323E]" title="Edit Unit">
+                                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                        </a>
+                                    @endcan
+                                    
+                                    @can('delete', $unit)
+                                        <!-- Delete (Policy: Terjual hanya MD, selain itu Admin & Superadmin) -->
+                                        <form action="{{ route('admin.units.destroy', $unit->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus unit ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1.5 rounded-lg bg-[#14181E] text-red-400 hover:text-red-300 hover:bg-[#28323E]" title="Hapus Unit">
+                                                <i class="fa-solid fa-trash text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

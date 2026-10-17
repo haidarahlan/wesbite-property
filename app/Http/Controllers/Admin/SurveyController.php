@@ -79,7 +79,7 @@ class SurveyController extends Controller
             ->select('id', 'name', 'phone', 'reference_code', 'unit_id')
             ->orderBy('name')
             ->get();
-        $units = Unit::select('id', 'code', 'title')->orderBy('code')->get();
+        $units = Unit::where('status', 'Tersedia')->select('id', 'code', 'title')->orderBy('code')->get();
         $users = User::where('is_active', true)->select('id', 'name', 'role')->get();
 
         return view('admin.surveys.index', compact(

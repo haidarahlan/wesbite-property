@@ -240,7 +240,7 @@
                         <select name="unit_id" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
                             <option value="">-- Belum Ditentukan --</option>
                             @foreach($units as $unit)
-                                <option value="{{ $unit->id }}">[{{ $unit->code }}] {{ $unit->title }}</option>
+                                <option value="{{ $unit->id }}">[{{ $unit->code }}] {{ $unit->title }} ({{ $unit->status }})</option>
                             @endforeach
                         </select>
                     </div>

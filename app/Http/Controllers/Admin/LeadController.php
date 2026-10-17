@@ -70,7 +70,17 @@ class LeadController extends Controller
         $followUpLeads = (clone $metricQuery)->where('status', 'Follow-up')->count();
         $surveyLeads = (clone $metricQuery)->whereIn('status', ['Survei Terjadwal', 'Survei Selesai'])->count();
 
-        $units = Unit::select('id', 'code', 'title')->orderBy('code')->get();
+        // Unit yang bisa dipilih: status Tersedia atau Booking, tetapi belum memiliki lead aktif yang memegang unit tersebut
+        $assignedUnitIds = Lead::whereNotNull('unit_id')
+            ->whereNotIn('status', ['Batal', 'Tidak Tertarik'])
+            ->pluck('unit_id')
+            ->toArray();
+
+        $units = Unit::whereIn('status', ['Tersedia', 'Booking'])
+            ->whereNotIn('id', $assignedUnitIds)
+            ->select('id', 'code', 'title', 'status')
+            ->orderBy('code')
+            ->get();
         $users = User::where('is_active', true)->select('id', 'name', 'role')->get();
 
         return view('admin.leads.index', compact(
@@ -156,7 +166,19 @@ class LeadController extends Controller
 
         $latestSurvey = $lead->surveys()->first();
 
-        $units = Unit::select('id', 'code', 'title', 'price', 'status')->get();
+        // Unit yang bisa dipilih: status Tersedia atau Booking yang belum aktif dipegang lead lain, atau unit milik lead ini saat ini
+        $assignedUnitIdsOtherLeads = Lead::whereNotNull('unit_id')
+            ->where('id', '!=', $lead->id)
+            ->whereNotIn('status', ['Batal', 'Tidak Tertarik'])
+            ->pluck('unit_id')
+            ->toArray();
+
+        $units = Unit::whereIn('status', ['Tersedia', 'Booking'])
+            ->whereNotIn('id', $assignedUnitIdsOtherLeads)
+            ->orWhere('id', $lead->unit_id)
+            ->select('id', 'code', 'title', 'price', 'status')
+            ->orderBy('code')
+            ->get();
         $users = User::where('is_active', true)->select('id', 'name', 'role')->get();
 
         return view('admin.leads.show', compact('lead', 'units', 'users', 'latestSurvey'));

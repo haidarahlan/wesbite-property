@@ -43,11 +43,13 @@
                 </a>
             @endif
 
-            <a href="{{ route('admin.units.edit', $unit->id) }}" 
-               class="px-4 py-2 bg-[#C5A038] hover:bg-[#B08C2B] text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square"></i>
-                <span>Edit Unit</span>
-            </a>
+            @can('update', $unit)
+                <a href="{{ route('admin.units.edit', $unit->id) }}" 
+                   class="px-4 py-2 bg-[#C5A038] hover:bg-[#B08C2B] text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Edit Unit</span>
+                </a>
+            @endcan
             <a href="{{ url('/properti/' . $unit->slug) }}" target="_blank"
                class="px-4 py-2 bg-[#232B35] hover:bg-[#2B3543] text-gray-300 text-xs font-semibold rounded-xl border border-[#2B3543] flex items-center gap-2">
                 <i class="fa-solid fa-globe text-[#C5A038]"></i>
