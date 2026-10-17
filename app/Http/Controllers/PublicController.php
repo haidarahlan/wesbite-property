@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CompanySection;
 use App\Models\Faq;
+use App\Models\Lead;
 use App\Models\Service;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;

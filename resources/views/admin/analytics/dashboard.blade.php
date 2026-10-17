@@ -97,9 +97,9 @@
             <div class="space-y-3 pt-2">
                 @php
                     $channels = [
-                        'whatsapp' => ['name' => 'WhatsApp Gateway', 'icon' => 'fa-brands fa-whatsapp text-emerald-400', 'color' => 'bg-emerald-500'],
-                        'website' => ['name' => 'Formulir Website Publik', 'icon' => 'fa-solid fa-globe text-blue-400', 'color' => 'bg-blue-500'],
-                        'manual' => ['name' => 'Offline / Telepon / Walk-in', 'icon' => 'fa-solid fa-phone text-amber-400', 'color' => 'bg-amber-500'],
+                        'whatsapp' => ['name' => 'WhatsApp Konsumen', 'icon' => 'fa-brands fa-whatsapp text-emerald-400', 'color' => 'bg-emerald-500'],
+                        'walk_in' => ['name' => 'Walk-in Kantor', 'icon' => 'fa-solid fa-building text-blue-400', 'color' => 'bg-blue-500'],
+                        'telepon' => ['name' => 'Telepon Langsung', 'icon' => 'fa-solid fa-phone text-amber-400', 'color' => 'bg-amber-500'],
                     ];
                 @endphp
 

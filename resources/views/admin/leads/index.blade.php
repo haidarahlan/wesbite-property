@@ -84,9 +84,9 @@
                 <label class="block text-[11px] text-gray-400 mb-1">Filter Sumber Lead</label>
                 <select name="source" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
                     <option value="all">Semua Sumber</option>
-                    <option value="whatsapp" {{ request('source') === 'whatsapp' ? 'selected' : '' }}>WhatsApp Gateway</option>
-                    <option value="website" {{ request('source') === 'website' ? 'selected' : '' }}>Website Publik</option>
-                    <option value="manual" {{ request('source') === 'manual' ? 'selected' : '' }}>Input Manual</option>
+                    <option value="whatsapp" {{ request('source') === 'whatsapp' ? 'selected' : '' }}>WhatsApp</option>
+                    <option value="walk_in" {{ request('source') === 'walk_in' ? 'selected' : '' }}>Walk-in Kantor</option>
+                    <option value="telepon" {{ request('source') === 'telepon' ? 'selected' : '' }}>Telepon Langsung</option>
                 </select>
             </div>
 
@@ -246,12 +246,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 font-semibold mb-1">Sumber Prospek</label>
-                        <select name="source" class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
-                            <option value="manual">Manual / Offline</option>
-                            <option value="telepon">Telepon Langsung</option>
+                        <label class="block text-gray-300 font-semibold mb-1">Sumber Prospek <span class="text-red-400">*</span></label>
+                        <select name="source" required class="w-full bg-[#161B22] border border-[#2B3543] rounded-xl px-3 py-2 text-white focus:border-[#C5A038] focus:outline-none">
+                            <option value="whatsapp">WhatsApp</option>
                             <option value="walk_in">Walk-in Kantor</option>
-                            <option value="whatsapp">WhatsApp Gateway</option>
+                            <option value="telepon">Telepon Langsung</option>
                         </select>
                     </div>
                 </div>
